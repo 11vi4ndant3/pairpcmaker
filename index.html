@@ -5,11 +5,11 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>PC MAKER</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💿</text></svg>">
-<script src="https://cdn.jsdelivr.net/npm/html-to-image@1.11.11/dist/html-to-image.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <style>
 :root{
   --font:"Lucida Grande","Lucida Sans Unicode","Apple SD Gothic Neo","Malgun Gothic","Noto Sans KR",sans-serif;
-  --mono:"Courier New",Courier,"D2Coding","Malgun Gothic","Apple SD Gothic Neo","Noto Sans KR",monospace;
+  --mono:"Courier New",Courier,"D2Coding",monospace;
   --aqua:#3a8ee6;
   --aqua-dark:#1f5fb8;
   --line:#8e98a6;
@@ -244,8 +244,14 @@ button{font-family:inherit}
 .star.hov{color:#ffd45a}
 .mfoot{display:flex;justify-content:space-between;align-items:center;font-size:11px;color:#555;margin-top:8px}
 
-/* ---------- PNG capture mode (only while saving) ---------- */
-.shot *,.shot *::before,.shot *::after{animation:none!important;transition:none!important}
+/* ---------- PNG capture mode (applied only to the saved copy) ---------- */
+.shot .win{box-shadow:none;border:1px solid #6f7782}
+.shot .player{box-shadow:none;border:1px solid #b8c4d2}
+.shot .deck{box-shadow:none;border:1px solid #9aa2ac}
+.shot .gel,.shot .aqua-btn,.shot .plain-btn,.shot .closebtn{box-shadow:none}
+.shot #dock{box-shadow:none}
+.shot .main-scroll,.shot .memo-paper{overflow:hidden}
+.shot input[type=range]{visibility:hidden}
 
 /* ---------- help ---------- */
 #helpbar{position:absolute;left:12px;bottom:92px;max-width:300px;z-index:4;font-size:11px;line-height:1.55;color:#0d2a55;
@@ -276,7 +282,7 @@ button{font-family:inherit}
 </style>
 </head>
 <body>
-<div id="desktop" lang="ko">
+<div id="desktop">
   <div id="wall"></div>
   <div class="swoosh sw1"></div><div class="swoosh sw2"></div><div class="swoosh sw3"></div>
 
@@ -291,9 +297,9 @@ button{font-family:inherit}
     <span class="m hide-s">Window</span>
     <span class="m hide-s">Help</span>
     <div class="right">
-      <button class="plain-btn" id="wallReset" data-noshot>기본 배경</button>
-      <button class="plain-btn" id="wallBtn" data-noshot>배경 바꾸기</button>
-      <button class="aqua-btn" id="saveBtn" data-noshot>PNG로 저장</button>
+      <button class="plain-btn" id="wallReset" data-html2canvas-ignore>기본 배경</button>
+      <button class="plain-btn" id="wallBtn" data-html2canvas-ignore>배경 바꾸기</button>
+      <button class="aqua-btn" id="saveBtn" data-html2canvas-ignore>PNG로 저장</button>
       <input type="file" id="wallFile" accept="image/*" hidden>
       <span id="clock"></span>
     </div>
@@ -364,7 +370,7 @@ button{font-family:inherit}
             </div>
             <img id="photoImg" alt="">
           </div>
-          <div class="photo-tools" data-noshot><span>휠: 크기 · 드래그: 위치</span><button class="plain-btn" id="photoChange">사진 바꾸기</button></div>
+          <div class="photo-tools" data-html2canvas-ignore><span>휠: 크기 · 드래그: 위치</span><button class="plain-btn" id="photoChange">사진 바꾸기</button></div>
           <input type="file" id="photoFile" accept="image/*" hidden>
         </div>
 
@@ -383,13 +389,13 @@ button{font-family:inherit}
           <div class="boxbody">
             <div class="vrow"><span>Today</span><input class="odo" value="17" inputmode="numeric" maxlength="7" aria-label="오늘 방문자 수"></div>
             <div class="vrow"><span>Total</span><input class="odo" value="2048" inputmode="numeric" maxlength="7" aria-label="전체 방문자 수"></div>
-            <div class="vnote" data-noshot>숫자를 눌러서 바꿀 수 있어요</div>
+            <div class="vnote" data-html2canvas-ignore>숫자를 눌러서 바꿀 수 있어요</div>
           </div>
         </div>
 
         <div class="box text-box">
           <div class="boxhead or"><span class="gb-title oneline" contenteditable="true" spellcheck="false">Guestbook</span></div>
-          <div class="gb-count"><span>Displaying <b id="gbN">2</b> of <b id="gbT">2</b> comments</span><button class="plain-btn" id="gbAdd" data-noshot>+ Add Comment</button></div>
+          <div class="gb-count"><span>Displaying <b id="gbN">2</b> of <b id="gbT">2</b> comments</span><button class="plain-btn" id="gbAdd" data-html2canvas-ignore>+ Add Comment</button></div>
           <div class="gb-list" id="gbList"></div>
           <input type="file" id="gbFile" accept="image/*" hidden>
         </div>
@@ -442,7 +448,7 @@ button{font-family:inherit}
         </div>
         <div class="deck-info"><span><span class="led" id="plLed"></span>PLAY</span><span>MP3 &middot; 128K</span><span class="vol" aria-hidden="true"><i style="height:3px"></i><i style="height:5px"></i><i style="height:7px"></i><i style="height:9px"></i><i style="height:9px;opacity:.3"></i></span></div>
         </div>
-        <div class="edit-hint" data-noshot>글자와 커버, 곡 길이를 눌러서 바꾸고, 재생 바는 끌어서 옮겨요</div>
+        <div class="edit-hint" data-html2canvas-ignore>글자와 커버, 곡 길이를 눌러서 바꾸고, 재생 바는 끌어서 옮겨요</div>
       </div>
     </div>
     <input type="file" id="coverFile" accept="image/*" hidden>
@@ -456,11 +462,11 @@ button{font-family:inherit}
         <thead><tr><th>Movie</th><th>별점</th></tr></thead>
         <tbody id="mrows"></tbody>
       </table>
-      <div class="mfoot"><span>별을 눌러서 평점을 매겨요</span><button class="plain-btn" id="mAdd" data-noshot>+ 영화 추가</button><span>평균 <b id="mavg">-</b></span></div>
+      <div class="mfoot"><span>별을 눌러서 평점을 매겨요</span><button class="plain-btn" id="mAdd" data-html2canvas-ignore>+ 영화 추가</button><span>평균 <b id="mavg">-</b></span></div>
     </div>
   </section>
 
-  <div id="helpbar" data-noshot>
+  <div id="helpbar" data-html2canvas-ignore>
     <b>사용법</b>
     아래 하단바나 왼쪽 아이콘을 누르면 창이 열려요. 창은 제목줄을 잡고 옮기고, 오른쪽 위 × 버튼(또는 Esc)으로 닫아요. TITLE을 비롯한 글자와 숫자는 눌러서 바로 고칠 수 있어요. 흐리게 보이는 하단바 아이콘은 장식이에요. 배경 사진은 오른쪽 위 '배경 바꾸기'로 넣어요. 메모장은 오른쪽 아래 모서리를 끌어 크기를 바꾸고, 방명록 사진은 더블클릭하면 다른 사진으로 바꿀 수 있어요. 다 꾸몄으면 오른쪽 위 'PNG로 저장'을 눌러요. 이 안내와 회색 도움말 문구는 저장되는 이미지에 찍히지 않아요.
     <button id="helpClose" aria-label="안내 닫기">×</button>
@@ -758,7 +764,7 @@ function gbCount(){ const n = gbList.children.length; $('#gbN').textContent = n;
 function addComment(name, msg){
   const it = document.createElement('div'); it.className = 'gb-item';
   it.innerHTML = `<div class="gb-left"><div class="gb-name oneline" contenteditable="true" spellcheck="false"></div><div class="gb-pic" title="사진 넣기 (더블클릭하면 바꾸기)"><img alt=""><span>+ photo</span></div></div>
-    <div class="gb-right"><div class="gb-date oneline" contenteditable="true" spellcheck="false"></div><div class="gb-msg" contenteditable="true" spellcheck="false"></div><button class="gb-del" data-noshot aria-label="댓글 지우기">×</button></div>`;
+    <div class="gb-right"><div class="gb-date oneline" contenteditable="true" spellcheck="false"></div><div class="gb-msg" contenteditable="true" spellcheck="false"></div><button class="gb-del" data-html2canvas-ignore aria-label="댓글 지우기">×</button></div>`;
   it.querySelector('.gb-name').textContent = name;
   it.querySelector('.gb-date').textContent = nowStr();
   it.querySelector('.gb-msg').textContent = msg;
@@ -933,58 +939,49 @@ function randomName(){
   crypto.getRandomValues(a);
   return Array.from(a, b => chars[b % chars.length]).join('') + '.png';
 }
-const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
 $('#saveBtn').addEventListener('click', async () => {
   const btn = $('#saveBtn');
-  if (typeof htmlToImage === 'undefined'){ alert('저장 도구를 불러오지 못했어요. 인터넷 연결을 확인하고 새로고침해 주세요.'); return; }
+  if (typeof html2canvas === 'undefined'){ alert('저장 도구를 불러오지 못했어요. 인터넷 연결을 확인하고 새로고침해 주세요.'); return; }
   if (document.activeElement) document.activeElement.blur();
   $$('.star.hov').forEach(s => s.classList.remove('hov'));
   btn.disabled = true; btn.textContent = '저장 중…';
-
-  /* narrow the desktop to the used width for a moment; menubar, clock and dock re-fit */
-  const dk = $('#desktop'), fit = fitWidth(), H = innerHeight;
-  const moved = $$('.win.open').map(w => [w, w.style.left]);
-  dk.classList.add('shot');
-  if (fit.shift) moved.forEach(([w, l]) => { w.style.left = (parseFloat(l) - fit.shift) + 'px'; });
-  dk.style.right = 'auto'; dk.style.width = fit.w + 'px';
-
   try{
-    const opts = {
-      width: fit.w, height: H,
-      pixelRatio: 2,
-      backgroundColor: '#2f6fcf',
-      skipFonts: true, fontEmbedCSS: '',   /* system fonts only: skip web-font embedding (a common failure point) */
-      style: { position:'relative', top:'0', left:'0', right:'auto', bottom:'auto', width: fit.w + 'px', height: H + 'px' },
-      filter: node => {
-        if (node.nodeType !== 1) return true;
-        if (node.hasAttribute('data-noshot')) return false;
-        /* an <img> with no picture yet makes the capture fail ("event: error"), so leave it out */
-        if (node.tagName === 'IMG' && !node.getAttribute('src')) return false;
-        if (node.tagName === 'INPUT' && node.type === 'file') return false;
-        return true;
+    const fit = fitWidth();
+    const canvas = await html2canvas($('#desktop'), {
+      onclone: doc => {
+        const dk = doc.getElementById('desktop');
+        dk.classList.add('shot');
+        /* narrow the desktop to the used width; menubar, clock and dock re-fit */
+        dk.style.right = 'auto'; dk.style.width = fit.w + 'px';
+        doc.querySelectorAll('.win.open').forEach(w => { w.style.left = (parseFloat(w.style.left) - fit.shift) + 'px'; });
+        /* movie titles/years and visitor counters → plain text so nothing gets clipped */
+        doc.querySelectorAll('.mtitle, .myear, .odo').forEach(inp => {
+          const h = inp.offsetHeight, sp = doc.createElement('span'), empty = !inp.value;
+          const cs = doc.defaultView.getComputedStyle(inp);
+          sp.textContent = empty ? (inp.placeholder || '') : inp.value;
+          sp.className = inp.className;
+          sp.style.cssText = `display:inline-block;box-sizing:border-box;height:${h}px;line-height:${h - 2}px;width:${inp.offsetWidth}px;flex:${cs.flex};`
+            + `padding:0 ${cs.paddingRight} 0 ${cs.paddingLeft};border:${cs.border};background-color:${cs.backgroundColor};background-image:${cs.backgroundImage};`
+            + `font:${cs.font};letter-spacing:${cs.letterSpacing};text-align:${cs.textAlign};max-width:${cs.maxWidth};`
+            + `white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:${empty ? '#999' : cs.color}`;
+          inp.replaceWith(sp);
+        });
+        const t = doc.getElementById('plTotal');
+        if (t){ const sp = doc.createElement('span'); sp.textContent = t.value; sp.style.cssText = 'font:inherit'; t.replaceWith(sp); }
       },
-      imagePlaceholder: 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7'
-    };
-    if (isSafari){ try { await htmlToImage.toCanvas(dk, opts); } catch(e){} }  /* Safari needs a warm-up pass for images */
-    /* try high quality first, then step down if the browser can't handle it */
-    let blob = null, lastErr = null;
-    for (const pr of [2, 1]){
-      try { blob = await htmlToImage.toBlob(dk, { ...opts, pixelRatio: pr }); } catch(e){ lastErr = e; blob = null; }
-      if (blob) break;
-    }
-    if (!blob) throw lastErr || new Error('빈 이미지');
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(blob); a.download = randomName();
-    document.body.appendChild(a); a.click(); a.remove();
-    setTimeout(() => URL.revokeObjectURL(a.href), 3000);
+      scale: Math.min(2, window.devicePixelRatio || 1), backgroundColor: '#2f6fcf', logging: false,
+      x: 0, y: 0, width: fit.w, height: innerHeight,
+      windowWidth: innerWidth, windowHeight: innerHeight, scrollX: 0, scrollY: 0
+    });
+    canvas.toBlob(blob => {
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob); a.download = randomName();
+      document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(() => URL.revokeObjectURL(a.href), 3000);
+    }, 'image/png');
   } catch(err){
-    const why = err && (err.message || (err.type ? 'event: ' + err.type : String(err)));
-    alert('이미지를 저장하지 못했어요. 다시 눌러 주세요.\n(오류 내용: ' + (why || '알 수 없음') + ')');
-    console.error(err);
+    alert('이미지를 저장하지 못했어요. 다시 눌러 주세요.');
   } finally {
-    moved.forEach(([w, l]) => { w.style.left = l; });
-    dk.style.right = ''; dk.style.width = '';
-    dk.classList.remove('shot');
     btn.disabled = false; btn.textContent = 'PNG로 저장';
   }
 });
