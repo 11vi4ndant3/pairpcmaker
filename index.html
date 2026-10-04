@@ -951,7 +951,7 @@ $('#saveBtn').addEventListener('click', async () => {
   try{
     const opts = {
       width: fit.w, height: H,
-      pixelRatio: Math.min(4, Math.max(3, window.devicePixelRatio || 1)),
+      pixelRatio: 2,
       backgroundColor: '#2f6fcf',
       skipFonts: true, fontEmbedCSS: '',   /* system fonts only: skip web-font embedding (a common failure point) */
       style: { position:'relative', top:'0', left:'0', right:'auto', bottom:'auto', width: fit.w + 'px', height: H + 'px' },
@@ -968,7 +968,7 @@ $('#saveBtn').addEventListener('click', async () => {
     if (isSafari){ try { await htmlToImage.toCanvas(dk, opts); } catch(e){} }  /* Safari needs a warm-up pass for images */
     /* try high quality first, then step down if the browser can't handle it */
     let blob = null, lastErr = null;
-    for (const pr of [opts.pixelRatio, 2, 1]){
+    for (const pr of [2, 1]){
       try { blob = await htmlToImage.toBlob(dk, { ...opts, pixelRatio: pr }); } catch(e){ lastErr = e; blob = null; }
       if (blob) break;
     }
