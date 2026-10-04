@@ -955,7 +955,15 @@ $('#saveBtn').addEventListener('click', async () => {
       backgroundColor: '#2f6fcf',
       skipFonts: true, fontEmbedCSS: '',   /* system fonts only: skip web-font embedding (a common failure point) */
       style: { position:'relative', top:'0', left:'0', right:'auto', bottom:'auto', width: fit.w + 'px', height: H + 'px' },
-      filter: node => !(node.nodeType === 1 && node.hasAttribute && node.hasAttribute('data-noshot'))
+      filter: node => {
+        if (node.nodeType !== 1) return true;
+        if (node.hasAttribute('data-noshot')) return false;
+        /* an <img> with no picture yet makes the capture fail ("event: error"), so leave it out */
+        if (node.tagName === 'IMG' && !node.getAttribute('src')) return false;
+        if (node.tagName === 'INPUT' && node.type === 'file') return false;
+        return true;
+      },
+      imagePlaceholder: 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7'
     };
     if (isSafari){ try { await htmlToImage.toCanvas(dk, opts); } catch(e){} }  /* Safari needs a warm-up pass for images */
     /* try high quality first, then step down if the browser can't handle it */
