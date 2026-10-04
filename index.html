@@ -1,0 +1,823 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>우리 둘의 공간</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💿</text></svg>">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<style>
+:root{
+  --font:"Lucida Grande","Lucida Sans Unicode","Apple SD Gothic Neo","Malgun Gothic","Noto Sans KR",sans-serif;
+  --mono:"Courier New",Courier,"D2Coding",monospace;
+  --aqua:#3a8ee6;
+  --aqua-dark:#1f5fb8;
+  --line:#8e98a6;
+  --ink:#1b1b1b;
+  --ms-blue:#003399;
+  --ms-mid:#6699cc;
+  --ms-orange:#ff9933;
+  --stripe:repeating-linear-gradient(0deg,#f3f3f3 0 2px,#e9e9e9 2px 4px);
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;overflow:hidden;font-family:var(--font);color:var(--ink);-webkit-font-smoothing:antialiased}
+button{font-family:inherit}
+:focus-visible{outline:2px solid #ffd54a;outline-offset:2px}
+
+/* ---------- desktop ---------- */
+#desktop{position:fixed;top:0;left:0;right:0;bottom:0;overflow:hidden;
+  background:
+    radial-gradient(120% 70% at 85% 115%, rgba(150,205,255,.6), rgba(150,205,255,0) 60%),
+    radial-gradient(90% 60% at 5% -10%, rgba(130,190,255,.55), rgba(130,190,255,0) 60%),
+    linear-gradient(160deg,#5c9de9 0%,#3374d2 45%,#1d52ae 100%);}
+.swoosh{position:absolute;border-radius:50%;pointer-events:none}
+.sw1{width:140vw;height:60vh;left:-20vw;top:38vh;background:radial-gradient(50% 50% at 50% 50%, rgba(255,255,255,.16), rgba(255,255,255,0));transform:rotate(-12deg)}
+.sw2{width:90vw;height:40vh;left:30vw;top:8vh;background:radial-gradient(50% 50% at 50% 50%, rgba(170,215,255,.28), rgba(170,215,255,0));transform:rotate(18deg)}
+.sw3{width:70vw;height:26vh;left:-10vw;top:12vh;background:radial-gradient(50% 50% at 50% 50%, rgba(255,255,255,.12), rgba(255,255,255,0));transform:rotate(-24deg)}
+
+/* ---------- menubar ---------- */
+#menubar{position:absolute;top:0;left:0;right:0;height:24px;display:flex;align-items:center;gap:18px;padding:0 12px;
+  background:linear-gradient(#ffffff,#e6e6e6);border-bottom:1px solid #9a9a9a;font-size:13px;z-index:9000}
+#menubar .orb{width:16px;height:16px;flex:none}
+#menubar .m{white-space:nowrap}
+#menubar .m.b{font-weight:bold}
+#menubar .right{margin-left:auto;display:flex;align-items:center;gap:14px}
+#clock{white-space:nowrap}
+
+.aqua-btn{appearance:none;border:1px solid #2a64ad;border-radius:999px;padding:2px 12px;font-size:12px;color:#06244d;cursor:pointer;
+  background:linear-gradient(#d9eeff 0%,#8fc5f7 48%,#4f9ced 52%,#a6dbff 100%);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.8),0 1px 2px rgba(0,0,0,.25)}
+.aqua-btn:active{background:linear-gradient(#a9d3fb 0%,#5ea8f0 48%,#2f7fdc 52%,#86c4f7 100%)}
+.aqua-btn:disabled{opacity:.6;cursor:default}
+.plain-btn{appearance:none;border:1px solid #9a9a9a;border-radius:999px;padding:2px 12px;font-size:12px;cursor:pointer;
+  background:linear-gradient(#ffffff 0%,#ececec 50%,#dcdcdc 51%,#f4f4f4 100%);box-shadow:0 1px 2px rgba(0,0,0,.18)}
+
+/* ---------- desktop icons ---------- */
+.dicon{position:absolute;left:14px;width:96px;display:flex;flex-direction:column;align-items:center;gap:3px;padding:6px 2px;z-index:5}
+.dicon-btn{background:none;border:0;padding:2px;cursor:pointer;border-radius:6px}
+.dicon-btn:hover{background:rgba(255,255,255,.14)}
+.dicon svg{width:58px;height:58px;display:block;filter:drop-shadow(0 3px 3px rgba(0,0,0,.35))}
+.dlabel{font-size:12px;color:#fff;text-shadow:0 1px 2px rgba(0,0,0,.85);padding:1px 6px;border-radius:9px;outline:none;text-align:center;max-width:96px;word-break:break-all}
+.dlabel[contenteditable]{cursor:text}
+.dlabel[contenteditable]:focus{background:#fff;color:#000;text-shadow:none}
+#icon-folder{top:40px}
+#icon-memo{top:150px}
+
+/* ---------- dock ---------- */
+#dock{position:absolute;left:50%;bottom:4px;transform:translateX(-50%);display:flex;align-items:flex-end;gap:6px;padding:6px 12px 10px;
+  background:linear-gradient(rgba(255,255,255,.55),rgba(235,242,250,.75));border:1px solid rgba(255,255,255,.85);
+  border-radius:10px 10px 4px 4px;box-shadow:0 4px 18px rgba(0,25,70,.35),inset 0 1px 0 #fff;z-index:9000}
+.dock-item{position:relative;width:56px;height:56px;border:0;padding:0;background:none;cursor:pointer}
+.dock-item svg{width:100%;height:100%;filter:drop-shadow(0 2px 2px rgba(0,0,0,.35))}
+.dock-item:not(.inert):active svg{filter:brightness(.7) drop-shadow(0 2px 2px rgba(0,0,0,.35))}
+.dock-item.inert{cursor:default}
+.dock-item .tri{position:absolute;left:50%;bottom:-9px;width:0;height:0;margin-left:-4px;border-left:4px solid transparent;border-right:4px solid transparent;border-bottom:5px solid #111;display:none}
+.dock-item.running .tri{display:block}
+.dock-sep{width:1px;align-self:stretch;margin:4px 4px;background:linear-gradient(transparent,rgba(0,0,0,.35),transparent)}
+
+/* ---------- windows ---------- */
+.win{position:absolute;display:none;flex-direction:column;border-radius:9px 9px 6px 6px;background:var(--stripe);
+  box-shadow:0 14px 34px rgba(0,22,70,.48),0 0 0 1px rgba(0,0,0,.28);max-width:calc(100vw - 16px);overflow:hidden}
+.win.open{display:flex;animation:pop .18s ease-out}
+@keyframes pop{from{transform:scale(.94);opacity:.4}to{transform:scale(1);opacity:1}}
+.titlebar{height:24px;flex:none;display:flex;align-items:center;padding:0 8px;cursor:grab;touch-action:none;user-select:none;
+  background:linear-gradient(#f9f9f9,#d4d4d4);border-bottom:1px solid #8f8f8f;position:relative}
+.titlebar:active{cursor:grabbing}
+.titlebar .title{position:absolute;left:70px;right:70px;text-align:center;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#222}
+.lights{display:flex;gap:7px;position:relative;z-index:2}
+.light{width:13px;height:13px;border-radius:50%;border:1px solid rgba(0,0,0,.35);padding:0;cursor:pointer;
+  background:radial-gradient(circle at 50% 30%,#fff 0,rgba(255,255,255,.2) 28%,rgba(255,255,255,0) 40%),radial-gradient(circle at 50% 70%,#ddd,#9a9a9a)}
+.win.active .light.r{background:radial-gradient(circle at 50% 28%,#ffd6d0 0,rgba(255,255,255,0) 38%),radial-gradient(circle at 50% 75%,#ff8a7a,#d8352a)}
+.win.active .light.y{background:radial-gradient(circle at 50% 28%,#fff1c8 0,rgba(255,255,255,0) 38%),radial-gradient(circle at 50% 75%,#ffd36a,#e09a12)}
+.win.active .light.g{background:radial-gradient(circle at 50% 28%,#d9f7c8 0,rgba(255,255,255,0) 38%),radial-gradient(circle at 50% 75%,#93e070,#3e9e24)}
+.light.g{cursor:default}
+.light{position:relative}
+.lights:hover .light.r::after,.lights:hover .light.y::after{position:absolute;left:0;right:0;top:-1px;text-align:center;font:bold 10px/13px Arial,sans-serif;color:rgba(70,0,0,.75)}
+.lights:hover .light.r::after{content:"×"}
+.lights:hover .light.y::after{content:"−";color:rgba(90,55,0,.75)}
+.win:not(.active) .titlebar .title{color:#888}
+
+/* ---------- main page (internet) ---------- */
+#win-main{width:700px}
+.toolbar{display:flex;justify-content:center;align-items:flex-end;gap:4px;padding:7px 10px 5px;border-bottom:1px solid #8f8f8f;box-shadow:0 1px 0 #fff;user-select:none;pointer-events:none;flex:none}
+.tb{width:72px;display:flex;flex-direction:column;align-items:center;gap:3px;font-size:11px;color:#111}
+.tb svg{width:34px;height:34px;filter:drop-shadow(0 1px 1px rgba(0,0,0,.3))}
+.tb-sep{width:1px;height:42px;align-self:center;background:repeating-linear-gradient(#777 0 1px,transparent 1px 3px);margin:0 6px}
+.main-scroll{overflow:auto;max-height:calc(100vh - 210px);background:#fff;flex:1}
+.ms-head{background:var(--ms-blue);color:#fff;padding:8px 14px;display:flex;align-items:baseline;gap:10px}
+.ms-head b{font-size:22px;letter-spacing:-.5px;font-family:Verdana,var(--font);outline:none;min-width:30px}
+.ms-head span{font-size:11px;opacity:.85;outline:none;min-width:30px}
+.ms-head [contenteditable]:focus{background:rgba(255,255,255,.18)}
+.ms-nav{background:var(--ms-mid);color:#fff;font-size:11px;padding:3px 14px;user-select:none;pointer-events:none;font-family:Verdana,var(--font)}
+.ms-grid{display:grid;grid-template-columns:210px 1fr 1fr;grid-template-rows:auto 1fr;gap:10px;padding:12px;font-family:Verdana,var(--font);font-size:12px}
+.box{border:1px solid var(--ms-mid);background:#fff}
+.boxhead{background:var(--ms-mid);color:#fff;font-weight:bold;padding:3px 8px;font-size:12px}
+.boxhead.dark{background:#336699}
+.boxhead.or{background:var(--ms-orange)}
+.boxbody{padding:8px}
+
+.photo-box{grid-row:1 / 3;display:flex;flex-direction:column}
+#photo{position:relative;flex:1;min-height:300px;overflow:hidden;background:#eef3fa;cursor:pointer;touch-action:none}
+#photo img{position:absolute;max-width:none;user-select:none;-webkit-user-drag:none;pointer-events:none}
+#photo .empty{position:absolute;top:0;left:0;right:0;bottom:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;color:#4d6c94;font-size:12px;text-align:center;padding:10px}
+#photo .empty svg{width:42px;height:42px;opacity:.7}
+#photo.has{cursor:grab}
+#photo.has .empty{display:none}
+#photo.dragging{cursor:grabbing}
+.photo-tools{display:flex;justify-content:space-between;align-items:center;padding:4px 6px;font-size:10px;color:#666;border-top:1px solid #dce5f0}
+.photo-tools button{font-size:10px;padding:1px 8px}
+
+.login label{display:flex;align-items:center;gap:6px;margin-bottom:6px;font-size:11px}
+.login label span{width:52px;flex:none;text-align:right}
+.login input[type=text],.login input[type=password]{flex:1;min-width:0;font-size:12px;padding:2px 4px;border:1px solid #7f9db9;font-family:inherit}
+.login .chk{justify-content:flex-start;padding-left:58px}
+.mbtns{display:flex;gap:6px;padding-left:58px}
+.mbtn{border:1px solid #666;background:linear-gradient(#fff,#dcdcdc);font-size:10px;padding:2px 8px;user-select:none;pointer-events:none}
+.mbtn.or{background:#ff6600;color:#fff;border-color:#c24e00}
+
+.visit .boxbody{display:flex;flex-direction:column;gap:8px;align-items:stretch}
+.vrow{display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:11px}
+.odo{width:100%;max-width:120px;text-align:right;font-family:var(--mono);font-weight:bold;font-size:18px;letter-spacing:3px;color:#7dff6a;
+  background:linear-gradient(#0c0c0c,#262626 50%,#0c0c0c);border:2px inset #777;padding:2px 6px}
+.vnote{font-size:10px;color:#777}
+
+.text-box{grid-column:2 / 4;display:flex;flex-direction:column;border-color:var(--ms-orange)}
+.gb-title{outline:none}
+.gb-title:focus{background:rgba(255,255,255,.25)}
+.gb-count{font-size:11px;padding:6px 8px;display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
+.gb-count button{font-size:10px;padding:1px 9px}
+.gb-list{display:flex;flex-direction:column;gap:2px;padding:0 6px 8px}
+.gb-item{display:grid;grid-template-columns:96px 1fr;background:#ffcc99;border:1px solid #f0b27a}
+.gb-left{display:flex;flex-direction:column;align-items:center;gap:4px;padding:6px 4px;text-align:center}
+.gb-name{font-size:11px;color:var(--ms-blue);text-decoration:underline;font-weight:bold;outline:none;min-width:30px;word-break:break-all}
+.gb-pic{width:70px;height:70px;border:1px solid #c98a4b;background:#fff8ef center/cover no-repeat;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:9px;color:#b07a44}
+.gb-pic.has span{display:none}
+.gb-right{background:#fffaf3;padding:6px 8px;position:relative;min-width:0}
+.gb-date{font-size:10px;font-weight:bold;color:#444;outline:none;margin-bottom:4px;padding-right:18px}
+.gb-msg{font-size:12px;line-height:1.55;outline:none;white-space:pre-wrap;word-break:break-word;min-height:40px}
+.gb-item [contenteditable]:focus{background:#fff;box-shadow:0 0 0 1px #9ab}
+.gb-del{position:absolute;top:4px;right:4px;width:16px;height:16px;border-radius:50%;border:1px solid #c98a4b;background:#fff;font-size:11px;line-height:12px;padding:0;cursor:pointer;color:#a0602a}
+
+/* ---------- memo ---------- */
+#win-memo{width:360px}
+.memo-tools{display:flex;align-items:center;gap:8px;padding:6px 8px;border-bottom:1px solid #a9a9a9;flex-wrap:wrap}
+.memo-tools label{display:flex;align-items:center;gap:4px;font-size:11px;color:#333}
+.memo-tools input[type=range]{width:90px}
+.memo-paper{background:#fff;height:320px;overflow:auto;padding:10px;border-top:1px solid #fff}
+#memoText{margin:0;font-family:var(--mono);font-size:13px;line-height:1.35;color:#000;white-space:pre;outline:none;min-height:100%}
+#memoText.ascii{line-height:1.1}
+.memo-paper.drop{background:#eef6ff}
+
+/* ---------- player ---------- */
+#win-player{width:246px}
+.player-wrap{padding:14px;display:flex;justify-content:center}
+.player{width:210px;border-radius:22px;padding:14px 12px 16px;
+  background:linear-gradient(160deg,#ffffff 0%,#eef3f9 40%,#d9e3ee 100%);
+  box-shadow:inset 0 0 0 1px #b8c4d2,inset 0 2px 0 #fff,0 6px 14px rgba(0,30,80,.25)}
+.screen{border:3px solid #111;border-radius:6px;background:linear-gradient(#f6f4fa,#dedae8);padding:0 0 6px;overflow:hidden}
+.scr-top{display:flex;align-items:center;justify-content:space-between;padding:2px 5px;font-size:10px;font-weight:bold;
+  background:linear-gradient(#fbfbfd,#d8d5e2);border-bottom:1px solid #b5b1c3}
+.batt{width:18px;height:8px;border:1px solid #333;border-radius:1px;position:relative;background:linear-gradient(#a9f07e,#3cb517)}
+.batt:after{content:"";position:absolute;right:-3px;top:2px;width:2px;height:3px;background:#333}
+.scr-count{font-size:10px;padding:4px 6px 2px;outline:none}
+.scr-main{display:flex;gap:8px;padding:2px 6px}
+#cover{width:70px;height:70px;flex:none;border:1px solid #b7b3c4;background-color:#fff;background-size:cover;background-position:center;cursor:pointer;position:relative;
+  background-image:linear-gradient(135deg,#f6d7e4,#cfe0fb)}
+#cover .ph{position:absolute;top:0;left:0;right:0;bottom:0;display:flex;align-items:center;justify-content:center;font-size:10px;color:#6d6880;text-align:center;line-height:1.2}
+#cover.has .ph{display:none}
+.meta{display:flex;flex-direction:column;justify-content:center;gap:5px;min-width:0;font-size:11px;font-weight:bold}
+.meta div{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;outline:none;border-radius:2px}
+.meta div:focus{background:#fff;text-overflow:clip}
+.prog{margin:8px 6px 3px;height:8px;border:1px solid #9a96aa;background:linear-gradient(#fff,#e2e0ea);position:relative}
+#plFill{position:absolute;left:0;top:0;bottom:0;width:0;background:linear-gradient(#bfe0ff,#4a95e6 50%,#2c78d4 51%,#8cc6ff)}
+.times{display:flex;justify-content:space-between;padding:0 6px;font-size:10px;font-weight:bold}
+#plTotal{width:48px;text-align:right;border:0;background:transparent;font:inherit;padding:0}
+#plTotal:focus{background:#fff;outline:1px solid #8fa4c4}
+.ctrls{display:flex;justify-content:center;gap:8px;margin-top:14px}
+.gel{width:46px;height:28px;border-radius:999px;border:1px solid #6e8db3;cursor:pointer;display:flex;align-items:center;justify-content:center;
+  background:linear-gradient(#ffffff 0%,#e3ecf6 48%,#c9d8ea 52%,#f2f7fc 100%);box-shadow:0 1px 2px rgba(0,0,0,.2),inset 0 1px 0 #fff}
+.gel.play{width:56px;border-color:#2a64ad;background:linear-gradient(#d9eeff 0%,#8fc5f7 48%,#4f9ced 52%,#a6dbff 100%)}
+.gel svg{width:16px;height:16px}
+.edit-hint{font-size:10px;color:#6d7a8c;text-align:center;margin-top:10px}
+
+/* ---------- movies ---------- */
+#win-movie{width:400px}
+.movie-body{background:#fff;padding:10px}
+.mtable{width:100%;border-collapse:collapse;font-size:12px}
+.mtable th{background:linear-gradient(#fafafa,#dedede);border:1px solid #9c9c9c;padding:4px 6px;font-weight:normal;text-align:left}
+.mtable th:last-child{width:118px;text-align:center}
+.mtable td{border:1px solid #c4c4c4;padding:4px 6px;height:34px}
+.mtable tr:nth-child(even) td{background:#edf3fe}
+.mcell{display:flex;align-items:center;gap:2px}
+.mtitle{flex:1;min-width:0;border:0;background:transparent;font:inherit;padding:2px}
+.myear{width:38px;border:0;background:transparent;font:inherit;text-align:center;padding:2px}
+.mtitle:focus,.myear:focus{background:#fff;outline:1px solid #8fa4c4}
+.stars{display:flex;justify-content:center;gap:1px}
+.star{border:0;background:none;padding:0 1px;font-size:19px;line-height:1;cursor:pointer;color:#cdd4de}
+.star.on{color:#f2b100;text-shadow:0 1px 0 #b07e00}
+.star.hov{color:#ffd45a}
+.mfoot{display:flex;justify-content:space-between;align-items:center;font-size:11px;color:#555;margin-top:8px}
+
+/* ---------- help ---------- */
+#helpbar{position:absolute;left:12px;bottom:92px;max-width:300px;z-index:4;font-size:11px;line-height:1.55;color:#0d2a55;
+  background:linear-gradient(rgba(255,255,255,.9),rgba(232,240,250,.9));border:1px solid rgba(255,255,255,.9);border-radius:8px;padding:8px 26px 8px 10px;box-shadow:0 3px 12px rgba(0,25,70,.3)}
+#helpbar b{display:block;font-size:12px;margin-bottom:2px}
+#helpbar button{position:absolute;top:5px;right:6px;width:16px;height:16px;border-radius:50%;border:1px solid #8aa;background:#fff;font-size:11px;line-height:12px;padding:0;cursor:pointer}
+
+/* ---------- responsive ---------- */
+@media (max-width:760px){
+  #menubar .m.hide-s{display:none}
+  .ms-grid{grid-template-columns:1fr;grid-template-rows:auto}
+  .photo-box{grid-row:auto}
+  .text-box{grid-column:auto}
+  .dock-item{width:42px;height:42px}
+  #dock{gap:3px;padding:5px 8px 9px}
+  .dicon{width:76px}
+  .dicon svg{width:46px;height:46px}
+  #icon-memo{top:128px}
+  .gb-item{grid-template-columns:78px 1fr}
+  .gb-pic{width:56px;height:56px}
+  #helpbar{bottom:78px;right:12px;max-width:none}
+  .toolbar .tb{width:52px}
+}
+@media (prefers-reduced-motion:reduce){
+  .win.open{animation:none}
+}
+</style>
+</head>
+<body>
+<div id="desktop">
+  <div class="swoosh sw1"></div><div class="swoosh sw2"></div><div class="swoosh sw3"></div>
+
+  <!-- menubar -->
+  <div id="menubar">
+    <svg class="orb" viewBox="0 0 16 16"><defs><radialGradient id="gOrb" cx=".4" cy=".3" r=".8"><stop offset="0" stop-color="#d6ecff"/><stop offset=".55" stop-color="#3a8ee6"/><stop offset="1" stop-color="#14489c"/></radialGradient></defs><circle cx="8" cy="8" r="7" fill="url(#gOrb)" stroke="#123f86" stroke-width=".8"/><ellipse cx="7" cy="5" rx="4" ry="2.2" fill="#fff" opacity=".6"/></svg>
+    <span class="m b">Desktop</span>
+    <span class="m">File</span>
+    <span class="m">Edit</span>
+    <span class="m hide-s">View</span>
+    <span class="m hide-s">Go</span>
+    <span class="m hide-s">Window</span>
+    <span class="m hide-s">Help</span>
+    <div class="right">
+      <button class="aqua-btn" id="saveBtn" data-html2canvas-ignore>PNG로 저장</button>
+      <span id="clock"></span>
+    </div>
+  </div>
+
+  <!-- desktop icons -->
+  <div class="dicon" id="icon-folder"><button class="dicon-btn" data-open="win-main" aria-label="폴더 열기">
+    <svg viewBox="0 0 64 64"><defs><linearGradient id="gFold" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#b9ddff"/><stop offset="1" stop-color="#3f8ae0"/></linearGradient></defs>
+      <path d="M6 14h19l5 6h28v34H6z" fill="#6caef1" stroke="#2a66b0" stroke-width="1.4"/>
+      <rect x="6" y="23" width="52" height="31" rx="2" fill="url(#gFold)" stroke="#2a66b0" stroke-width="1.4"/>
+      <path d="M8 26h48" stroke="#fff" stroke-opacity=".7" stroke-width="1.5"/>
+      <path d="M28 36h8M32 32v8" stroke="#fff" stroke-width="2.2" stroke-linecap="round" opacity=".85"/></svg></button>
+    <span class="dlabel oneline" contenteditable="true" spellcheck="false">TITLE</span>
+  </div>
+  <div class="dicon" id="icon-memo"><button class="dicon-btn" data-open="win-memo" aria-label="메모장 열기">
+    <svg viewBox="0 0 64 64"><rect x="13" y="8" width="38" height="50" rx="2" fill="#fff" stroke="#8d99a8" stroke-width="1.4"/>
+      <path d="M17 21h30M17 28h30M17 35h30M17 42h30M17 49h20" stroke="#9cc1ea" stroke-width="1.4"/>
+      <path d="M22 9v48" stroke="#e98a8a" stroke-width="1" opacity=".7"/>
+      <g fill="#c4cbd4" stroke="#7c8693" stroke-width=".8"><circle cx="20" cy="9" r="2.6"/><circle cx="28" cy="9" r="2.6"/><circle cx="36" cy="9" r="2.6"/><circle cx="44" cy="9" r="2.6"/></g></svg></button>
+    <span class="dlabel">Notepad</span>
+  </div>
+
+  <!-- ===== main window (internet) ===== -->
+  <section class="win" id="win-main" aria-label="메인 페이지">
+    <div class="titlebar"><div class="lights"><button class="light r" data-close aria-label="닫기"></button><button class="light y" data-close aria-label="최소화"></button><span class="light g"></span></div><div class="title" id="mainWinTitle">TITLE</div></div>
+    <div class="toolbar" aria-hidden="true">
+      <div class="tb"><svg viewBox="0 0 40 40"><defs><linearGradient id="tHw" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff6e3"/><stop offset="1" stop-color="#e2c79a"/></linearGradient><linearGradient id="tHr" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#d9673d"/><stop offset="1" stop-color="#8a2c14"/></linearGradient></defs>
+        <rect x="27" y="7" width="4" height="9" fill="#8a4a2a" stroke="#4d2410" stroke-width=".8"/>
+        <path d="M9 18h22v17H9z" fill="url(#tHw)" stroke="#7a5a2c" stroke-width="1"/>
+        <path d="M4 20 20 6l16 14-3 2L20 11 7 22z" fill="url(#tHr)" stroke="#5e1c0a" stroke-width="1" stroke-linejoin="round"/>
+        <rect x="17" y="25" width="6" height="10" fill="#7a3c1c" stroke="#4d2410" stroke-width=".8"/><circle cx="21.6" cy="30.5" r=".8" fill="#f2c94c"/>
+        <rect x="11.5" y="22" width="4.5" height="4.5" fill="#bfe1ff" stroke="#7a5a2c" stroke-width=".8"/><rect x="24.5" y="22" width="4.5" height="4.5" fill="#bfe1ff" stroke="#7a5a2c" stroke-width=".8"/></svg>Home</div>
+      <div class="tb"><svg viewBox="0 0 40 40"><defs><linearGradient id="tPh" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#6b6b6b"/><stop offset="1" stop-color="#151515"/></linearGradient></defs>
+        <path d="M7 26c0-6 6-9 13-9s13 3 13 9v6c0 2-1 3-3 3H10c-2 0-3-1-3-3z" fill="url(#tPh)" stroke="#000" stroke-width=".9"/>
+        <circle cx="20" cy="27.5" r="5.3" fill="#e9e9e9" stroke="#333" stroke-width=".8"/><circle cx="20" cy="27.5" r="2" fill="#333"/>
+        <path d="M4 12c0-4 7-6 16-6s16 2 16 6l-1 4c-1 1-4 1-6 0l-1-3c-3-1-13-1-16 0l-1 3c-2 1-5 1-6 0z" fill="url(#tPh)" stroke="#000" stroke-width=".9"/>
+        <path d="M8 9c4-1.5 20-1.5 24 0" stroke="#fff" stroke-opacity=".45" fill="none"/></svg>Phone</div>
+      <div class="tb"><svg viewBox="0 0 40 40"><defs><radialGradient id="tHe" cx=".35" cy=".3" r=".8"><stop offset="0" stop-color="#ffd3d8"/><stop offset=".45" stop-color="#ee2f45"/><stop offset="1" stop-color="#8e0718"/></radialGradient></defs>
+        <path d="M20 35C8 26 4 20 4 14c0-5 4-8 8-8 4 0 7 2 8 6 1-4 4-6 8-6 4 0 8 3 8 8 0 6-4 12-16 21z" fill="url(#tHe)" stroke="#6d0612" stroke-width="1"/>
+        <ellipse cx="12" cy="12" rx="4.5" ry="3" fill="#fff" opacity=".65" transform="rotate(-25 12 12)"/></svg>Favorites</div>
+      <span class="tb-sep"></span>
+      <div class="tb"><svg viewBox="0 0 40 40"><defs><linearGradient id="tDoc" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffffff"/><stop offset="1" stop-color="#dfe5ec"/></linearGradient></defs>
+        <path d="M9 4h15l7 7v25H9z" fill="url(#tDoc)" stroke="#6f7a88" stroke-width="1"/><path d="M24 4v7h7" fill="#cfd7e1" stroke="#6f7a88" stroke-width="1"/>
+        <path d="M13 16h14M13 20h14M13 24h9" stroke="#a8b8cc" stroke-width="1.2"/>
+        <path d="M29 22l1.6 4 4 1.6-4 1.6-1.6 4-1.6-4-4-1.6 4-1.6z" fill="#ffd93b" stroke="#c99700" stroke-width=".7"/></svg>New</div>
+      <div class="tb"><svg viewBox="0 0 40 40"><defs><linearGradient id="tSt" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff59a"/><stop offset="1" stop-color="#f4d838"/></linearGradient></defs>
+        <path d="M14 5h20v18H14z" fill="#f7e46a" stroke="#b49a1c" stroke-width=".9" transform="rotate(8 24 14)"/>
+        <path d="M5 13h22v20H5z" fill="url(#tSt)" stroke="#b49a1c" stroke-width=".9" transform="rotate(-6 16 23)"/>
+        <g stroke="#6a5c1a" stroke-width="1" fill="none" transform="rotate(-6 16 23)"><path d="M8 19h10M8 23h15M8 27h12"/></g></svg>Notes</div>
+    </div>
+    <div class="main-scroll">
+      <div class="ms-head"><b id="siteTitle" class="oneline" contenteditable="true" spellcheck="false">TITLE</b><span class="oneline" contenteditable="true" spellcheck="false">a place for friends</span></div>
+      <div class="ms-nav" aria-hidden="true">Home | Browse | Search | Film | Mail | Music</div>
+      <div class="ms-grid">
+        <div class="box photo-box">
+          <div class="boxhead">Photo</div>
+          <div id="photo" tabindex="0" aria-label="사진 넣기">
+            <div class="empty">
+              <svg viewBox="0 0 32 32"><rect x="3" y="7" width="26" height="19" rx="2" fill="none" stroke="#4d6c94" stroke-width="1.6"/><circle cx="11" cy="14" r="2.5" fill="#4d6c94"/><path d="M4 24l8-7 5 5 4-3 7 6" fill="none" stroke="#4d6c94" stroke-width="1.6"/></svg>
+              Click to add photo<br><small>휠로 크기, 드래그로 위치 조절</small>
+            </div>
+            <img id="photoImg" alt="">
+          </div>
+          <div class="photo-tools" data-html2canvas-ignore><span>휠: 크기 · 드래그: 위치</span><button class="plain-btn" id="photoChange">사진 바꾸기</button></div>
+          <input type="file" id="photoFile" accept="image/*" hidden>
+        </div>
+
+        <div class="box login">
+          <div class="boxhead dark">Member Login</div>
+          <div class="boxbody">
+            <label><span>E-Mail:</span><input type="text" id="loginId" autocomplete="off" spellcheck="false"></label>
+            <label><span>Password:</span><input type="password" id="loginPw" autocomplete="new-password"></label>
+            <label class="chk"><input type="checkbox" checked> Remember Me</label>
+            <div class="mbtns" aria-hidden="true"><span class="mbtn">LOGIN</span><span class="mbtn or">SIGN UP!</span></div>
+          </div>
+        </div>
+
+        <div class="box visit">
+          <div class="boxhead or">Visitors</div>
+          <div class="boxbody">
+            <div class="vrow"><span>Today</span><input class="odo" value="17" inputmode="numeric" maxlength="7" aria-label="오늘 방문자 수"></div>
+            <div class="vrow"><span>Total</span><input class="odo" value="2048" inputmode="numeric" maxlength="7" aria-label="전체 방문자 수"></div>
+            <div class="vnote" data-html2canvas-ignore>숫자를 눌러서 바꿀 수 있어요</div>
+          </div>
+        </div>
+
+        <div class="box text-box">
+          <div class="boxhead or"><span class="gb-title oneline" contenteditable="true" spellcheck="false">TITLE</span></div>
+          <div class="gb-count"><span>Displaying <b id="gbN">2</b> of <b id="gbT">2</b> comments</span><button class="plain-btn" id="gbAdd" data-html2canvas-ignore>+ Add Comment</button></div>
+          <div class="gb-list" id="gbList"></div>
+          <input type="file" id="gbFile" accept="image/*" hidden>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== memo ===== -->
+  <section class="win" id="win-memo" aria-label="메모장">
+    <div class="titlebar"><div class="lights"><button class="light r" data-close aria-label="닫기"></button><button class="light y" data-close aria-label="최소화"></button><span class="light g"></span></div><div class="title">메모장</div></div>
+    <div class="memo-tools">
+      <button class="aqua-btn" id="memoPick">사진 넣기</button>
+      <label>세밀함 <input type="range" id="memoCols" min="30" max="120" value="64"></label>
+      <button class="plain-btn" id="memoClear">비우기</button>
+    </div>
+    <div class="memo-paper" id="memoPaper"><pre id="memoText" contenteditable="true" spellcheck="false">사진을 넣으면 흑백 아스키 아트로 바뀌어요.
+
+'사진 넣기'를 누르거나
+이 종이 위로 사진을 끌어다 놓아 주세요.
+
+글도 자유롭게 쓸 수 있어요.</pre></div>
+    <input type="file" id="memoFile" accept="image/*" hidden>
+  </section>
+
+  <!-- ===== player ===== -->
+  <section class="win" id="win-player" aria-label="플레이어">
+    <div class="titlebar"><div class="lights"><button class="light r" data-close aria-label="닫기"></button><button class="light y" data-close aria-label="최소화"></button><span class="light g"></span></div><div class="title">플레이리스트</div></div>
+    <div class="player-wrap">
+      <div class="player">
+        <div class="screen">
+          <div class="scr-top"><span id="plState">❚❚</span><span>Now Playing</span><span class="batt"></span></div>
+          <div class="scr-count oneline" contenteditable="true">1 / 1</div>
+          <div class="scr-main">
+            <div id="cover" title="눌러서 앨범 커버 넣기"><div class="ph">커버<br>넣기</div></div>
+            <div class="meta">
+              <div class="oneline" contenteditable="true" spellcheck="false">노래 제목</div>
+              <div class="oneline" contenteditable="true" spellcheck="false">아티스트</div>
+              <div class="oneline" contenteditable="true" spellcheck="false">앨범 이름</div>
+            </div>
+          </div>
+          <div class="prog"><div id="plFill"></div></div>
+          <div class="times"><span id="plElapsed">0:00</span><input id="plTotal" value="-2:33" aria-label="곡 길이"></div>
+        </div>
+        <div class="ctrls">
+          <button class="gel" id="plPrev" aria-label="처음으로"><svg viewBox="0 0 16 16"><path d="M3 3h2v10H3zM14 3v10L6 8z" fill="#2b3a4e"/></svg></button>
+          <button class="gel play" id="plPlay" aria-label="재생"><svg viewBox="0 0 16 16" id="plIcon"><path d="M4 2l10 6-10 6z" fill="#082a57"/></svg></button>
+          <button class="gel" id="plNext" aria-label="끝으로"><svg viewBox="0 0 16 16"><path d="M11 3h2v10h-2zM2 3v10l8-5z" fill="#2b3a4e"/></svg></button>
+        </div>
+        <div class="edit-hint" data-html2canvas-ignore>글자와 커버, 곡 길이를 눌러서 바꿔요</div>
+      </div>
+    </div>
+    <input type="file" id="coverFile" accept="image/*" hidden>
+  </section>
+
+  <!-- ===== movies ===== -->
+  <section class="win" id="win-movie" aria-label="같이 본 영화">
+    <div class="titlebar"><div class="lights"><button class="light r" data-close aria-label="닫기"></button><button class="light y" data-close aria-label="최소화"></button><span class="light g"></span></div><div class="title">같이 본 영화</div></div>
+    <div class="movie-body">
+      <table class="mtable">
+        <thead><tr><th>영화 제목 (년도)</th><th>별점</th></tr></thead>
+        <tbody id="mrows"></tbody>
+      </table>
+      <div class="mfoot"><span>별을 눌러서 평점을 매겨요</span><span>평균 <b id="mavg">-</b></span></div>
+    </div>
+  </section>
+
+  <div id="helpbar" data-html2canvas-ignore>
+    <b>사용법</b>
+    아래 하단바나 왼쪽 아이콘을 누르면 창이 열려요. 창은 제목줄을 잡고 옮기고, 왼쪽 위 빨간 버튼(또는 Esc)으로 닫아요. TITLE을 비롯한 글자와 숫자는 눌러서 바로 고칠 수 있어요. 다 꾸몄으면 오른쪽 위 'PNG로 저장'을 눌러요. 이 안내와 회색 도움말 문구는 저장되는 이미지에 찍히지 않아요.
+    <button id="helpClose" aria-label="안내 닫기">×</button>
+  </div>
+
+  <!-- dock -->
+  <nav id="dock" aria-label="하단바">
+    <button class="dock-item inert" aria-label="메일">
+      <svg viewBox="0 0 64 64"><defs>
+        <linearGradient id="dMail" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fffdf6"/><stop offset="1" stop-color="#e9e0c9"/></linearGradient>
+        <linearGradient id="dStamp" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#9fd0ff"/><stop offset="1" stop-color="#2f6fc4"/></linearGradient></defs>
+        <g transform="rotate(-7 32 34)">
+        <rect x="5" y="15" width="54" height="36" rx="2" fill="url(#dMail)" stroke="#8a7a58" stroke-width="1.3"/>
+        <g clip-path="none"><path d="M5 15h54v3H5zM5 48h54v3H5z" fill="none"/></g>
+        <path d="M7 17h5l-3 4H7zM17 17h5l-3 4h-5zM27 17h5l-3 4h-5zM37 17h5l-3 4h-5zM47 17h5l-3 4h-5zM7 49h5l3-4h-5zM17 49h5l3-4h-5zM27 49h5l3-4h-5zM37 49h5l3-4h-5zM47 49h5l3-4h-5z" fill="#d23a32"/>
+        <path d="M12 17h5l-3 4H9zM22 17h5l-3 4h-5zM32 17h5l-3 4h-5zM42 17h5l-3 4h-5zM52 17h5l-3 4h-5zM12 49h5l3-4h-5zM22 49h5l3-4h-5zM32 49h5l3-4h-5zM42 49h5l3-4h-5zM52 49h5l3-4h-5z" fill="#2a5db4"/>
+        <path d="M12 30h18M12 34h22M12 38h15" stroke="#7c7466" stroke-width="1.3" stroke-linecap="round"/>
+        <rect x="42" y="23" width="12" height="14" fill="#fff" stroke="#b7ab8c" stroke-width=".8" stroke-dasharray="1.4 .9"/>
+        <rect x="43.5" y="24.5" width="9" height="11" fill="url(#dStamp)"/>
+        <path d="M45 33l3-5 2 3 1.5-2 1 4z" fill="#fff" opacity=".85"/>
+        <circle cx="41" cy="33" r="6" fill="none" stroke="#5a5a5a" stroke-width="1" opacity=".55"/>
+        <path d="M34 31q3-2 6 0t6 0M34 35q3-2 6 0t6 0" fill="none" stroke="#5a5a5a" stroke-width=".9" opacity=".55"/>
+        </g></svg>
+    </button>
+    <button class="dock-item" data-open="win-main" aria-label="인터넷">
+      <svg viewBox="0 0 64 64"><defs>
+        <radialGradient id="dGl" cx=".35" cy=".3" r=".8"><stop offset="0" stop-color="#d2ecff"/><stop offset=".5" stop-color="#3c8fe4"/><stop offset="1" stop-color="#0b3b8f"/></radialGradient>
+        <linearGradient id="dBr" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#8a5d1c"/><stop offset=".5" stop-color="#f5d27a"/><stop offset="1" stop-color="#8a5d1c"/></linearGradient>
+        <linearGradient id="dWd" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#9b5a2c"/><stop offset="1" stop-color="#4a2410"/></linearGradient></defs>
+        <path d="M14 10A24 24 0 0 1 52 44" fill="none" stroke="url(#dBr)" stroke-width="3.2" stroke-linecap="round"/>
+        <circle cx="31" cy="29" r="20" fill="url(#dGl)" stroke="#0a347c" stroke-width="1"/>
+        <g fill="#6cc25c" stroke="#2f7f29" stroke-width=".7"><path d="M19 19c4-4 10-5 13-2 2 3-2 4-4 6s0 6-4 7c-3 1-6-2-6-6 0-2-1-3 1-5z"/><path d="M34 30c4-1 8 1 9 4 0 3-3 7-6 8-3 0-3-3-3-5 0-3-3-6 0-7z"/><path d="M37 13c3 0 6 2 7 4-2 1-5 1-7-1z"/></g>
+        <g fill="none" stroke="#fff" stroke-opacity=".4" stroke-width=".8"><ellipse cx="31" cy="29" rx="8.5" ry="20"/><path d="M11 29h40M13.5 20h35M13.5 38h35"/></g>
+        <ellipse cx="25" cy="18" rx="10" ry="5.5" fill="#fff" opacity=".5"/>
+        <path d="M31 49v5" stroke="url(#dBr)" stroke-width="3"/>
+        <path d="M18 60c0-4 6-6 13-6s13 2 13 6z" fill="url(#dWd)" stroke="#2e1608" stroke-width=".8"/>
+        <path d="M22 57c4-1.5 14-1.5 18 0" stroke="#d8a06a" stroke-width=".8" fill="none" opacity=".7"/></svg>
+      <span class="tri"></span>
+    </button>
+    <button class="dock-item inert" aria-label="휴지통">
+      <svg viewBox="0 0 64 64"><defs>
+        <linearGradient id="dCan" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#6d737c"/><stop offset=".35" stop-color="#e9edf2"/><stop offset=".55" stop-color="#ffffff"/><stop offset="1" stop-color="#666c75"/></linearGradient>
+        <linearGradient id="dRim" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#7d838c"/><stop offset=".5" stop-color="#ffffff"/><stop offset="1" stop-color="#7d838c"/></linearGradient>
+        <clipPath id="dCanClip"><path d="M13 16 18 56Q32 61 46 56L51 16z"/></clipPath></defs>
+        <ellipse cx="32" cy="58" rx="15" ry="3" fill="#000" opacity=".25"/>
+        <path d="M13 16 18 56Q32 61 46 56L51 16z" fill="#4e545c" opacity=".35"/>
+        <g clip-path="url(#dCanClip)" stroke="url(#dCan)" stroke-width="1.6" fill="none">
+          <path d="M6 14 40 62M12 14 46 62M18 14 52 62M24 14 58 62M30 14 64 62M0 14 34 62M-6 14 28 62"/>
+          <path d="M58 14 24 62M52 14 18 62M46 14 12 62M40 14 6 62M34 14 0 62M64 14 30 62M70 14 36 62"/>
+        </g>
+        <path d="M18 56Q32 61 46 56" fill="none" stroke="url(#dRim)" stroke-width="3"/>
+        <path d="M13 16 18 56M51 16 46 56" stroke="#5c6168" stroke-width="1.2"/>
+        <ellipse cx="32" cy="16" rx="19.5" ry="5.5" fill="none" stroke="url(#dRim)" stroke-width="3.4"/>
+        <ellipse cx="32" cy="16" rx="19.5" ry="5.5" fill="none" stroke="#4c5158" stroke-width=".6"/></svg>
+    </button>
+    <button class="dock-item" data-open="win-movie" aria-label="같이 본 영화">
+      <svg viewBox="0 0 64 64"><defs>
+        <linearGradient id="dSl" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#3d3d44"/><stop offset="1" stop-color="#141417"/></linearGradient>
+        <linearGradient id="dHg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f4f4f4"/><stop offset="1" stop-color="#7c828a"/></linearGradient>
+        <clipPath id="dTop"><rect x="8" y="15" width="48" height="9" rx="1.5"/></clipPath>
+        <clipPath id="dBot"><rect x="8" y="25" width="48" height="7"/></clipPath></defs>
+        <rect x="8" y="25" width="48" height="31" rx="2.5" fill="url(#dSl)" stroke="#000" stroke-width="1.2"/>
+        <g clip-path="url(#dBot)"><rect x="8" y="25" width="48" height="7" fill="#f5f5f5"/><path d="M8 25h7l-5 7H3zM22 25h7l-5 7h-7zM36 25h7l-5 7h-7zM50 25h7l-5 7h-7z" fill="#1d1d21"/></g>
+        <g transform="rotate(-17 9 24)"><g clip-path="url(#dTop)"><rect x="8" y="15" width="48" height="9" fill="#f5f5f5"/><path d="M12 15h7l-5 9H7zM26 15h7l-5 9h-7zM40 15h7l-5 9h-7zM54 15h7l-5 9h-7z" fill="#1d1d21"/></g><rect x="8" y="15" width="48" height="9" rx="1.5" fill="none" stroke="#000" stroke-width="1.1"/></g>
+        <circle cx="10.5" cy="24.5" r="2.6" fill="url(#dHg)" stroke="#000" stroke-width=".8"/>
+        <g stroke="#f2f2f2" stroke-opacity=".75" stroke-width="1" fill="none"><path d="M12 40h40M12 48h40M32 32v24"/></g>
+        <g fill="#f2f2f2" opacity=".8" font-family="Arial,sans-serif" font-size="4.6" font-weight="bold"><text x="13" y="38">SCENE</text><text x="35" y="38">TAKE</text><text x="13" y="46">ROLL</text><text x="35" y="46">DATE</text></g>
+        <path d="M14 51q4-2 7 0t7 0M37 51q3-2 6 0t6 0" stroke="#f2f2f2" stroke-width=".9" fill="none" opacity=".6"/>
+        <path d="M9 34h46" stroke="#fff" stroke-opacity=".12" stroke-width="2"/></svg>
+      <span class="tri"></span>
+    </button>
+    <button class="dock-item" data-open="win-player" aria-label="음악">
+      <svg viewBox="0 0 64 64"><defs>
+        <radialGradient id="dCd" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#fdfdfd"/><stop offset=".3" stop-color="#dfe5ee"/><stop offset=".7" stop-color="#c9d2de"/><stop offset="1" stop-color="#aeb8c6"/></radialGradient>
+        <linearGradient id="dNote" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#7fc0ff"/><stop offset="1" stop-color="#0d46a8"/></linearGradient></defs>
+        <circle cx="29" cy="35" r="24" fill="url(#dCd)" stroke="#7f8a99" stroke-width="1.1"/>
+        <path d="M29 35 13 17A24 24 0 0 1 23 11.8z" fill="#ffb3d9" opacity=".55"/>
+        <path d="M29 35 23 11.8A24 24 0 0 1 33 11.4z" fill="#b8f0ff" opacity=".6"/>
+        <path d="M29 35 33 11.4A24 24 0 0 1 41 14z" fill="#fff6a8" opacity=".55"/>
+        <path d="M29 35 45 53A24 24 0 0 1 35 58.2z" fill="#c9b3ff" opacity=".55"/>
+        <path d="M29 35 35 58.2A24 24 0 0 1 25 58.6z" fill="#b3ffd6" opacity=".55"/>
+        <circle cx="29" cy="35" r="16" fill="none" stroke="#fff" stroke-opacity=".5" stroke-width=".8"/>
+        <circle cx="29" cy="35" r="8" fill="#e9edf2" stroke="#8a95a4" stroke-width=".9"/>
+        <circle cx="29" cy="35" r="3" fill="#6b7480"/>
+        <g stroke="#fff" stroke-width="5" stroke-linejoin="round" fill="#fff"><path d="M45 8v27"/><ellipse cx="40" cy="36" rx="7" ry="5.4" transform="rotate(-22 40 36)"/><path d="M45 8q10 3 11 13-3-6-11-6z"/></g>
+        <path d="M45 8v27" stroke="url(#dNote)" stroke-width="3.4"/>
+        <ellipse cx="40" cy="36" rx="7" ry="5.4" transform="rotate(-22 40 36)" fill="url(#dNote)"/>
+        <path d="M45 8q10 3 11 13-3-6-11-6z" fill="url(#dNote)"/>
+        <ellipse cx="38" cy="34" rx="3" ry="1.6" transform="rotate(-22 38 34)" fill="#fff" opacity=".7"/></svg>
+      <span class="tri"></span>
+    </button>
+    <span class="dock-sep"></span>
+    <button class="dock-item inert" aria-label="돋보기">
+      <svg viewBox="0 0 64 64"><defs>
+        <radialGradient id="dLens" cx=".4" cy=".35" r=".75"><stop offset="0" stop-color="#ffffff"/><stop offset=".6" stop-color="#cfe4f8"/><stop offset="1" stop-color="#8fb6dd"/></radialGradient>
+        <linearGradient id="dChr" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffffff"/><stop offset=".45" stop-color="#9aa3ad"/><stop offset=".7" stop-color="#e8ecf0"/><stop offset="1" stop-color="#5f6872"/></linearGradient>
+        <linearGradient id="dHd" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#3a1d0c"/><stop offset=".5" stop-color="#a5622e"/><stop offset="1" stop-color="#3a1d0c"/></linearGradient></defs>
+        <g transform="rotate(-45 26 26)"><rect x="21" y="48" width="10" height="23" rx="4" fill="url(#dHd)" stroke="#24110a" stroke-width=".8"/><path d="M24 53v14" stroke="#e0a26a" stroke-width="1" opacity=".6"/><rect x="20" y="42" width="12" height="8" rx="1.2" fill="url(#dChr)" stroke="#4c545c" stroke-width=".7"/><path d="M20 46.5h12" stroke="#4c545c" stroke-width=".5" opacity=".6"/></g>
+        <circle cx="26" cy="26" r="17" fill="url(#dLens)"/>
+        <circle cx="26" cy="26" r="17" fill="none" stroke="url(#dChr)" stroke-width="5"/>
+        <circle cx="26" cy="26" r="19.5" fill="none" stroke="#4c545c" stroke-width=".7"/>
+        <circle cx="26" cy="26" r="14.5" fill="none" stroke="#4c545c" stroke-width=".6"/>
+        <path d="M15 22a12 12 0 0 1 9-9" stroke="#fff" stroke-width="3" stroke-linecap="round" fill="none" opacity=".9"/>
+        <circle cx="33" cy="33" r="2" fill="#fff" opacity=".6"/></svg>
+    </button>
+  </nav>
+</div>
+
+<script>
+const $ = s => document.querySelector(s);
+const $$ = s => Array.from(document.querySelectorAll(s));
+
+/* ---------- clock ---------- */
+function tick(){
+  const d = new Date(), days = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  let h = d.getHours(); const ap = h < 12 ? 'AM' : 'PM'; h = h % 12 || 12;
+  $('#clock').textContent = `${days[d.getDay()]} ${h}:${String(d.getMinutes()).padStart(2,'0')} ${ap}`;
+}
+tick(); setInterval(tick, 15000);
+
+/* ---------- windows ---------- */
+let zTop = 20;
+function focusWin(w){
+  w.style.zIndex = ++zTop;
+  $$('.win').forEach(x => x.classList.toggle('active', x === w));
+}
+function place(w){
+  const W = innerWidth, H = innerHeight, ww = w.offsetWidth, wh = w.offsetHeight;
+  const small = W < 760;
+  const defaults = {
+    'win-main':   [W*0.5 - ww/2 + 70, 40],
+    'win-player': [118, 44],
+    'win-memo':   [110, Math.max(80, H*0.42)],
+    'win-movie':  [W*0.5 - 40, H*0.42]
+  };
+  let [x, y] = defaults[w.id] || [100, 60];
+  if (small){ x = (W - ww)/2; y = 34 + Object.keys(defaults).indexOf(w.id)*14; }
+  x = Math.max(8, Math.min(x, W - ww - 8));
+  y = Math.max(30, Math.min(y, H - wh - 90));
+  w.style.left = x + 'px'; w.style.top = Math.max(30, y) + 'px';
+}
+function openWin(id){
+  const w = document.getElementById(id);
+  if (!w.classList.contains('open')){
+    w.classList.add('open');
+    if (!w.dataset.placed){ place(w); w.dataset.placed = '1'; }
+  }
+  focusWin(w); updateDock();
+}
+function closeWin(w){ w.classList.remove('open'); updateDock(); if (w.id === 'win-player') pause(); }
+function updateDock(){
+  $$('.dock-item[data-open]').forEach(b => b.classList.toggle('running', document.getElementById(b.dataset.open).classList.contains('open')));
+}
+$$('[data-open]').forEach(b => b.addEventListener('click', () => openWin(b.dataset.open)));
+$$('[data-close]').forEach(b => b.addEventListener('click', e => { e.stopPropagation(); closeWin(b.closest('.win')); }));
+
+$$('.win').forEach(w => {
+  w.addEventListener('pointerdown', () => focusWin(w));
+  const bar = w.querySelector('.titlebar');
+  bar.addEventListener('pointerdown', e => {
+    if (e.target.closest('.lights')) return;
+    e.preventDefault();
+    const r = w.getBoundingClientRect(), ox = e.clientX - r.left, oy = e.clientY - r.top;
+    bar.setPointerCapture(e.pointerId);
+    const move = ev => {
+      let x = ev.clientX - ox, y = ev.clientY - oy;
+      x = Math.max(-r.width + 90, Math.min(innerWidth - 90, x));
+      y = Math.max(24, Math.min(innerHeight - 40, y));
+      w.style.left = x + 'px'; w.style.top = y + 'px';
+    };
+    const up = () => { bar.removeEventListener('pointermove', move); bar.removeEventListener('pointerup', up); bar.removeEventListener('pointercancel', up); };
+    bar.addEventListener('pointermove', move); bar.addEventListener('pointerup', up); bar.addEventListener('pointercancel', up);
+  });
+});
+
+/* plain-text paste, single-line fields */
+document.addEventListener('paste', e => {
+  const t = e.target.closest && e.target.closest('[contenteditable]');
+  if (!t) return;
+  e.preventDefault();
+  document.execCommand('insertText', false, (e.clipboardData || window.clipboardData).getData('text'));
+});
+$$('.oneline').forEach(el => el.addEventListener('keydown', e => { if (e.key === 'Enter'){ e.preventDefault(); el.blur(); } }));
+
+function readImage(file, cb){
+  if (!file || !file.type.startsWith('image/')) return;
+  const fr = new FileReader();
+  fr.onload = () => { const img = new Image(); img.onload = () => cb(img, fr.result); img.src = fr.result; };
+  fr.readAsDataURL(file);
+}
+
+/* ---------- photo: wheel zoom + drag ---------- */
+const photo = $('#photo'), pimg = $('#photoImg'), pfile = $('#photoFile');
+let ps = { s:1, x:0, y:0, w:0, h:0 };
+function applyP(){ pimg.style.width = ps.w*ps.s + 'px'; pimg.style.height = ps.h*ps.s + 'px'; pimg.style.left = ps.x + 'px'; pimg.style.top = ps.y + 'px'; }
+pfile.addEventListener('change', e => {
+  readImage(e.target.files[0], (img, url) => {
+    pimg.src = url;
+    const r = photo.getBoundingClientRect();
+    const k = Math.max(r.width / img.naturalWidth, r.height / img.naturalHeight);
+    ps = { s:1, w:img.naturalWidth*k, h:img.naturalHeight*k, x:0, y:0 };
+    ps.x = (r.width - ps.w)/2; ps.y = (r.height - ps.h)/2;
+    applyP(); photo.classList.add('has');
+  });
+  e.target.value = '';
+});
+$('#photoChange').addEventListener('click', () => pfile.click());
+photo.addEventListener('keydown', e => { if (e.key === 'Enter' && !photo.classList.contains('has')) pfile.click(); });
+photo.addEventListener('wheel', e => {
+  if (!photo.classList.contains('has')) return;
+  e.preventDefault();
+  const r = photo.getBoundingClientRect(), mx = e.clientX - r.left, my = e.clientY - r.top;
+  const ns = Math.min(8, Math.max(0.2, ps.s * (e.deltaY < 0 ? 1.1 : 1/1.1)));
+  const f = ns / ps.s;
+  ps.x = mx - (mx - ps.x)*f; ps.y = my - (my - ps.y)*f; ps.s = ns; applyP();
+}, { passive:false });
+photo.addEventListener('pointerdown', e => {
+  if (!photo.classList.contains('has')){ pfile.click(); return; }
+  e.preventDefault();
+  const sx = e.clientX, sy = e.clientY, bx = ps.x, by = ps.y;
+  photo.setPointerCapture(e.pointerId); photo.classList.add('dragging');
+  const move = ev => { ps.x = bx + ev.clientX - sx; ps.y = by + ev.clientY - sy; applyP(); };
+  const up = () => { photo.classList.remove('dragging'); photo.removeEventListener('pointermove', move); photo.removeEventListener('pointerup', up); photo.removeEventListener('pointercancel', up); };
+  photo.addEventListener('pointermove', move); photo.addEventListener('pointerup', up); photo.addEventListener('pointercancel', up);
+});
+
+/* window title follows site title */
+const siteTitle = $('#siteTitle');
+siteTitle.addEventListener('input', () => { $('#mainWinTitle').textContent = siteTitle.textContent.trim() || 'TITLE'; });
+
+/* Esc closes the front window */
+document.addEventListener('keydown', e => {
+  if (e.key !== 'Escape') return;
+  if (document.activeElement && document.activeElement.isContentEditable){ document.activeElement.blur(); return; }
+  const w = $('.win.active.open'); if (w) closeWin(w);
+});
+$('#helpClose').addEventListener('click', () => $('#helpbar').remove());
+
+/* ---------- guestbook ---------- */
+const gbList = $('#gbList'), gbFile = $('#gbFile');
+let gbTarget = null;
+function nowStr(){
+  return new Date().toLocaleString('en-US', { month:'short', day:'numeric', year:'numeric', hour:'numeric', minute:'2-digit' });
+}
+function gbCount(){ const n = gbList.children.length; $('#gbN').textContent = n; $('#gbT').textContent = n; }
+function addComment(name, msg){
+  const it = document.createElement('div'); it.className = 'gb-item';
+  it.innerHTML = `<div class="gb-left"><div class="gb-name oneline" contenteditable="true" spellcheck="false"></div><div class="gb-pic" title="사진 넣기"><span>+ photo</span></div></div>
+    <div class="gb-right"><div class="gb-date oneline" contenteditable="true" spellcheck="false"></div><div class="gb-msg" contenteditable="true" spellcheck="false"></div><button class="gb-del" data-html2canvas-ignore aria-label="댓글 지우기">×</button></div>`;
+  it.querySelector('.gb-name').textContent = name;
+  it.querySelector('.gb-date').textContent = nowStr();
+  it.querySelector('.gb-msg').textContent = msg;
+  it.querySelectorAll('.oneline').forEach(el => el.addEventListener('keydown', e => { if (e.key === 'Enter'){ e.preventDefault(); el.blur(); } }));
+  it.querySelector('.gb-pic').addEventListener('click', e => { gbTarget = e.currentTarget; gbFile.click(); });
+  it.querySelector('.gb-del').addEventListener('click', () => { it.remove(); gbCount(); });
+  gbList.appendChild(it); gbCount();
+}
+gbFile.addEventListener('change', e => {
+  readImage(e.target.files[0], (img, url) => { if (gbTarget){ gbTarget.style.backgroundImage = `url("${url}")`; gbTarget.classList.add('has'); } });
+  e.target.value = '';
+});
+$('#gbAdd').addEventListener('click', () => addComment('Name', 'Write a comment here.'));
+addComment('Friend', 'thanks for the add!! 글을 눌러서 자유롭게 바꿔 보세요.');
+addComment('Name', 'Write a comment here.');
+
+/* visitor counters: digits only */
+$$('.odo').forEach(i => i.addEventListener('input', () => { i.value = i.value.replace(/\D/g, ''); }));
+
+/* ---------- memo: image -> B/W ascii ---------- */
+const memoText = $('#memoText'), memoPaper = $('#memoPaper'), memoCols = $('#memoCols');
+const memoDefault = memoText.textContent;
+let memoImg = null;
+const RAMP = '@%#*+=-:. ';
+function renderAscii(){
+  if (!memoImg) return;
+  const cols = +memoCols.value;
+  const rows = Math.max(1, Math.round(cols * (memoImg.naturalHeight / memoImg.naturalWidth) * 0.55));
+  const c = document.createElement('canvas'); c.width = cols; c.height = rows;
+  const x = c.getContext('2d');
+  x.fillStyle = '#fff'; x.fillRect(0, 0, cols, rows); x.drawImage(memoImg, 0, 0, cols, rows);
+  const d = x.getImageData(0, 0, cols, rows).data, lum = [];
+  let mn = 255, mx = 0;
+  for (let i = 0; i < d.length; i += 4){
+    const l = 0.299*d[i] + 0.587*d[i+1] + 0.114*d[i+2];
+    lum.push(l); if (l < mn) mn = l; if (l > mx) mx = l;
+  }
+  const span = Math.max(1, mx - mn);
+  let out = '';
+  for (let r = 0; r < rows; r++){
+    for (let k = 0; k < cols; k++){
+      const n = (lum[r*cols + k] - mn) / span;
+      out += RAMP[Math.min(RAMP.length - 1, Math.floor(n * RAMP.length))];
+    }
+    out += '\n';
+  }
+  const avail = memoPaper.clientWidth - 20;
+  memoText.style.fontSize = (avail / (cols * 0.6)).toFixed(2) + 'px';
+  memoText.classList.add('ascii');
+  memoText.textContent = out;
+}
+function loadMemo(file){ readImage(file, img => { memoImg = img; renderAscii(); }); }
+$('#memoPick').addEventListener('click', () => $('#memoFile').click());
+$('#memoFile').addEventListener('change', e => { loadMemo(e.target.files[0]); e.target.value = ''; });
+memoCols.addEventListener('input', renderAscii);
+$('#memoClear').addEventListener('click', () => {
+  memoImg = null; memoText.classList.remove('ascii'); memoText.style.fontSize = ''; memoText.textContent = memoDefault;
+});
+['dragenter','dragover'].forEach(t => memoPaper.addEventListener(t, e => { e.preventDefault(); memoPaper.classList.add('drop'); }));
+['dragleave','drop'].forEach(t => memoPaper.addEventListener(t, () => memoPaper.classList.remove('drop')));
+memoPaper.addEventListener('drop', e => { e.preventDefault(); loadMemo(e.dataTransfer.files[0]); });
+
+/* ---------- player ---------- */
+const pl = { playing:false, t:0, total:153, timer:null };
+const fmt = s => { s = Math.max(0, Math.round(s)); return Math.floor(s/60) + ':' + String(s%60).padStart(2,'0'); };
+const plTotal = $('#plTotal');
+const ICON_PLAY = '<path d="M4 2l10 6-10 6z" fill="#082a57"/>';
+const ICON_PAUSE = '<path d="M3 2h4v12H3zM9 2h4v12H9z" fill="#082a57"/>';
+function renderPl(){
+  $('#plElapsed').textContent = fmt(pl.t);
+  if (document.activeElement !== plTotal) plTotal.value = '-' + fmt(pl.total - pl.t);
+  $('#plFill').style.width = (pl.total ? pl.t / pl.total * 100 : 0) + '%';
+  $('#plState').textContent = pl.playing ? '▶' : '❚❚';
+  $('#plIcon').innerHTML = pl.playing ? ICON_PAUSE : ICON_PLAY;
+}
+function pause(){ pl.playing = false; clearInterval(pl.timer); renderPl(); }
+function play(){
+  if (pl.t >= pl.total) pl.t = 0;
+  pl.playing = true; clearInterval(pl.timer);
+  pl.timer = setInterval(() => { pl.t++; if (pl.t >= pl.total){ pl.t = pl.total; pause(); } renderPl(); }, 1000);
+  renderPl();
+}
+$('#plPlay').addEventListener('click', () => pl.playing ? pause() : play());
+$('#plPrev').addEventListener('click', () => { pl.t = 0; renderPl(); });
+$('#plNext').addEventListener('click', () => { pl.t = pl.total; pause(); });
+plTotal.addEventListener('focus', () => { plTotal.value = fmt(pl.total); plTotal.select(); });
+plTotal.addEventListener('keydown', e => { if (e.key === 'Enter') plTotal.blur(); });
+plTotal.addEventListener('blur', () => {
+  const m = plTotal.value.replace('-', '').trim().match(/^(\d{1,2}):(\d{1,2})$/);
+  if (m) pl.total = Math.max(1, (+m[1])*60 + (+m[2]));
+  pl.t = Math.min(pl.t, pl.total); renderPl();
+});
+const cover = $('#cover');
+cover.addEventListener('click', () => $('#coverFile').click());
+$('#coverFile').addEventListener('change', e => {
+  readImage(e.target.files[0], (img, url) => { cover.style.backgroundImage = `url("${url}")`; cover.classList.add('has'); });
+  e.target.value = '';
+});
+renderPl();
+
+/* ---------- movies ---------- */
+const mrows = $('#mrows'), ratings = [0,0,0,0,0];
+for (let i = 0; i < 5; i++){
+  const tr = document.createElement('tr');
+  tr.innerHTML = `<td><div class="mcell"><input class="mtitle" placeholder="영화 제목" aria-label="영화 제목 ${i+1}"><span>(</span><input class="myear" placeholder="년도" maxlength="4" inputmode="numeric" aria-label="개봉 년도 ${i+1}"><span>)</span></div></td>
+    <td><div class="stars">${[1,2,3,4,5].map(n => `<button class="star" data-n="${n}" aria-label="${n}점">★</button>`).join('')}</div></td>`;
+  mrows.appendChild(tr);
+  const stars = Array.from(tr.querySelectorAll('.star'));
+  const paint = () => stars.forEach(s => s.classList.toggle('on', +s.dataset.n <= ratings[i]));
+  stars.forEach(s => {
+    s.addEventListener('click', () => { const n = +s.dataset.n; ratings[i] = ratings[i] === n ? 0 : n; paint(); avg(); });
+    s.addEventListener('mouseenter', () => stars.forEach(o => o.classList.toggle('hov', +o.dataset.n <= +s.dataset.n && !o.classList.contains('on'))));
+  });
+  tr.querySelector('.stars').addEventListener('mouseleave', () => stars.forEach(o => o.classList.remove('hov')));
+  tr.querySelector('.myear').addEventListener('input', e => { e.target.value = e.target.value.replace(/\D/g, ''); });
+}
+function avg(){
+  const r = ratings.filter(Boolean);
+  $('#mavg').textContent = r.length ? '★ ' + (r.reduce((a,b) => a+b, 0) / r.length).toFixed(1) : '-';
+}
+
+/* ---------- save PNG with random name ---------- */
+function randomName(){
+  const chars = 'abcdefghijklmnopqrstuvwxyz0123456789', a = new Uint8Array(14);
+  crypto.getRandomValues(a);
+  return Array.from(a, b => chars[b % chars.length]).join('') + '.png';
+}
+$('#saveBtn').addEventListener('click', async () => {
+  const btn = $('#saveBtn');
+  if (typeof html2canvas === 'undefined'){ alert('저장 도구를 불러오지 못했어요. 인터넷 연결을 확인하고 새로고침해 주세요.'); return; }
+  if (document.activeElement) document.activeElement.blur();
+  $$('.star.hov').forEach(s => s.classList.remove('hov'));
+  btn.disabled = true; btn.textContent = '저장 중…';
+  try{
+    const canvas = await html2canvas($('#desktop'), {
+      scale: Math.min(2, window.devicePixelRatio || 1), backgroundColor: '#2f6fcf', logging: false,
+      width: innerWidth, height: innerHeight, windowWidth: innerWidth, windowHeight: innerHeight, scrollX: 0, scrollY: 0
+    });
+    canvas.toBlob(blob => {
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob); a.download = randomName();
+      document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(() => URL.revokeObjectURL(a.href), 3000);
+    }, 'image/png');
+  } catch(err){
+    alert('이미지를 저장하지 못했어요. 다시 눌러 주세요.');
+  } finally {
+    btn.disabled = false; btn.textContent = 'PNG로 저장';
+  }
+});
+
+/* start with the main page open */
+openWin('win-main');
+</script>
+</body>
+</html>
