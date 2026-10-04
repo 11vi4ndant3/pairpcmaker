@@ -923,6 +923,17 @@ function avg(){
 }
 
 /* ---------- save PNG with random name ---------- */
+/* full height, but only as wide as the windows actually need */
+function fitWidth(){
+  const wins = $$('.win.open'), ICONS = 120, PAD = 32;
+  const dockW = $('#dock').offsetWidth + 40;
+  if (!wins.length) return { w: innerWidth, shift: 0 };
+  let l = Infinity, r = -Infinity;
+  wins.forEach(w => { const q = w.getBoundingClientRect(); l = Math.min(l, q.left); r = Math.max(r, q.right); });
+  const shift = Math.max(0, Math.floor(l - ICONS));
+  const w = Math.min(innerWidth, Math.max(dockW, 520, Math.ceil(r - shift + PAD)));
+  return { w, shift };
+}
 function randomName(){
   const chars = 'abcdefghijklmnopqrstuvwxyz0123456789', a = new Uint8Array(14);
   crypto.getRandomValues(a);
@@ -935,15 +946,20 @@ $('#saveBtn').addEventListener('click', async () => {
   $$('.star.hov').forEach(s => s.classList.remove('hov'));
   btn.disabled = true; btn.textContent = '저장 중…';
   try{
+    const fit = fitWidth();
     const canvas = await html2canvas($('#desktop'), {
       onclone: doc => {
-        doc.getElementById('desktop').classList.add('shot');
+        const dk = doc.getElementById('desktop');
+        dk.classList.add('shot');
+        /* narrow the desktop to the used width; menubar, clock and dock re-fit */
+        dk.style.right = 'auto'; dk.style.width = fit.w + 'px';
+        doc.querySelectorAll('.win.open').forEach(w => { w.style.left = (parseFloat(w.style.left) - fit.shift) + 'px'; });
         /* inputs that render badly in the capture become plain text */
         const t = doc.getElementById('plTotal');
         if (t){ const sp = doc.createElement('span'); sp.textContent = t.value; sp.style.cssText = 'font:inherit'; t.replaceWith(sp); }
       },
       scale: Math.min(2, window.devicePixelRatio || 1), backgroundColor: '#2f6fcf', logging: false,
-      x: 0, y: 0, width: innerWidth, height: innerHeight,
+      x: 0, y: 0, width: fit.w, height: innerHeight,
       windowWidth: innerWidth, windowHeight: innerHeight, scrollX: 0, scrollY: 0
     });
     canvas.toBlob(blob => {
