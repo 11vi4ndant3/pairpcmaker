@@ -660,6 +660,11 @@ document.addEventListener('paste', e => {
   document.execCommand('insertText', false, (e.clipboardData || window.clipboardData).getData('text'));
 });
 $$('.oneline').forEach(el => el.addEventListener('keydown', e => { if (e.key === 'Enter'){ e.preventDefault(); el.blur(); } }));
+/* after editing, snap long text back to the start so it shows "제목…" */
+document.addEventListener('focusout', e => {
+  const el = e.target;
+  if (el && el.isContentEditable){ el.scrollLeft = 0; requestAnimationFrame(() => { el.scrollLeft = 0; }); }
+});
 
 function readImage(file, cb){
   if (!file || !file.type.startsWith('image/')) return;
