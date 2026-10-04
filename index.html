@@ -956,14 +956,14 @@ $('#saveBtn').addEventListener('click', async () => {
         doc.querySelectorAll('.win.open').forEach(w => { w.style.left = (parseFloat(w.style.left) - fit.shift) + 'px'; });
         /* inputs that render badly in the capture become plain text */
         /* text inputs → plain text so letters aren't clipped in the PNG */
-        doc.querySelectorAll('.mtitle, .myear, .login input[type=text], .login input[type=password]').forEach(inp => {
+        doc.querySelectorAll('.mtitle, .myear, .odo, .login input[type=text], .login input[type=password]').forEach(inp => {
           const h = inp.offsetHeight, sp = doc.createElement('span');
           const empty = !inp.value;
           sp.textContent = empty ? (inp.placeholder || '') : (inp.type === 'password' ? '•'.repeat(inp.value.length) : inp.value);
           sp.className = inp.className;
           const cs = doc.defaultView.getComputedStyle(inp);
           sp.style.cssText = `display:inline-block;box-sizing:border-box;height:${h}px;line-height:${h - 2}px;width:${inp.offsetWidth}px;flex:${cs.flex};`
-            + `padding:0 ${cs.paddingRight} 0 ${cs.paddingLeft};border:${cs.border};background:${cs.backgroundColor};font:${cs.font};text-align:${cs.textAlign};`
+            + `padding:0 ${cs.paddingRight} 0 ${cs.paddingLeft};border:${cs.border};background-color:${cs.backgroundColor};background-image:${cs.backgroundImage};font:${cs.font};letter-spacing:${cs.letterSpacing};text-align:${cs.textAlign};max-width:${cs.maxWidth};`
             + `white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:${empty ? '#999' : cs.color}`;
           inp.replaceWith(sp);
         });
