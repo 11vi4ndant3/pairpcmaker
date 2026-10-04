@@ -954,11 +954,11 @@ $('#saveBtn').addEventListener('click', async () => {
         /* narrow the desktop to the used width; menubar, clock and dock re-fit */
         dk.style.right = 'auto'; dk.style.width = fit.w + 'px';
         doc.querySelectorAll('.win.open').forEach(w => { w.style.left = (parseFloat(w.style.left) - fit.shift) + 'px'; });
-        /* movie titles/years and visitor counters → plain text so nothing gets clipped */
-        doc.querySelectorAll('.mtitle, .myear, .odo').forEach(inp => {
+        /* movie titles/years, visitor counters and login fields → plain text so nothing gets clipped */
+        doc.querySelectorAll('.mtitle, .myear, .odo, .login input[type=text], .login input[type=password]').forEach(inp => {
           const h = inp.offsetHeight, sp = doc.createElement('span'), empty = !inp.value;
           const cs = doc.defaultView.getComputedStyle(inp);
-          sp.textContent = empty ? (inp.placeholder || '') : inp.value;
+          sp.textContent = empty ? (inp.placeholder || '') : (inp.type === 'password' ? '•'.repeat(inp.value.length) : inp.value);
           sp.className = inp.className;
           sp.style.cssText = `display:inline-block;box-sizing:border-box;height:${h}px;line-height:${h - 2}px;width:${inp.offsetWidth}px;flex:${cs.flex};`
             + `padding:0 ${cs.paddingRight} 0 ${cs.paddingLeft};border:${cs.border};background-color:${cs.backgroundColor};background-image:${cs.backgroundImage};`
