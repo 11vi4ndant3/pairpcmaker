@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>우리 둘의 공간</title>
+<title>PC MAKER</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💿</text></svg>">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <style>
@@ -31,6 +31,11 @@ button{font-family:inherit}
     radial-gradient(90% 60% at 5% -10%, rgba(130,190,255,.55), rgba(130,190,255,0) 60%),
     linear-gradient(160deg,#5c9de9 0%,#3374d2 45%,#1d52ae 100%);}
 .swoosh{position:absolute;border-radius:50%;pointer-events:none}
+#wall{position:absolute;top:0;left:0;right:0;bottom:0;background:center/cover no-repeat;display:none}
+#desktop.custom #wall{display:block}
+#desktop.custom .swoosh{display:none}
+#wallReset{display:none}
+#desktop.custom #wallReset{display:inline-block}
 .sw1{width:140vw;height:60vh;left:-20vw;top:38vh;background:radial-gradient(50% 50% at 50% 50%, rgba(255,255,255,.16), rgba(255,255,255,0));transform:rotate(-12deg)}
 .sw2{width:90vw;height:40vh;left:30vw;top:8vh;background:radial-gradient(50% 50% at 50% 50%, rgba(170,215,255,.28), rgba(170,215,255,0));transform:rotate(18deg)}
 .sw3{width:70vw;height:26vh;left:-10vw;top:12vh;background:radial-gradient(50% 50% at 50% 50%, rgba(255,255,255,.12), rgba(255,255,255,0));transform:rotate(-24deg)}
@@ -70,7 +75,8 @@ button{font-family:inherit}
 .dock-item{position:relative;width:56px;height:56px;border:0;padding:0;background:none;cursor:pointer}
 .dock-item svg{width:100%;height:100%;filter:drop-shadow(0 2px 2px rgba(0,0,0,.35))}
 .dock-item:not(.inert):active svg{filter:brightness(.7) drop-shadow(0 2px 2px rgba(0,0,0,.35))}
-.dock-item.inert{cursor:default}
+.dock-item.inert{cursor:default;opacity:.42}
+
 .dock-item .tri{position:absolute;left:50%;bottom:-9px;width:0;height:0;margin-left:-4px;border-left:4px solid transparent;border-right:4px solid transparent;border-bottom:5px solid #111;display:none}
 .dock-item.running .tri{display:block}
 .dock-sep{width:1px;align-self:stretch;margin:4px 4px;background:linear-gradient(transparent,rgba(0,0,0,.35),transparent)}
@@ -87,15 +93,17 @@ button{font-family:inherit}
 .lights{display:flex;gap:7px;position:relative;z-index:2}
 .light{width:13px;height:13px;border-radius:50%;border:1px solid rgba(0,0,0,.35);padding:0;cursor:pointer;
   background:radial-gradient(circle at 50% 30%,#fff 0,rgba(255,255,255,.2) 28%,rgba(255,255,255,0) 40%),radial-gradient(circle at 50% 70%,#ddd,#9a9a9a)}
-.win.active .light.r{background:radial-gradient(circle at 50% 28%,#ffd6d0 0,rgba(255,255,255,0) 38%),radial-gradient(circle at 50% 75%,#ff8a7a,#d8352a)}
-.win.active .light.y{background:radial-gradient(circle at 50% 28%,#fff1c8 0,rgba(255,255,255,0) 38%),radial-gradient(circle at 50% 75%,#ffd36a,#e09a12)}
-.win.active .light.g{background:radial-gradient(circle at 50% 28%,#d9f7c8 0,rgba(255,255,255,0) 38%),radial-gradient(circle at 50% 75%,#93e070,#3e9e24)}
+.win .light.r{background:radial-gradient(circle at 50% 28%,#ffd6d0 0,rgba(255,255,255,0) 38%),radial-gradient(circle at 50% 75%,#ff8a7a,#d8352a)}
+.win .light.y{background:radial-gradient(circle at 50% 28%,#fff1c8 0,rgba(255,255,255,0) 38%),radial-gradient(circle at 50% 75%,#ffd36a,#e09a12)}
+.win .light.g{background:radial-gradient(circle at 50% 28%,#d9f7c8 0,rgba(255,255,255,0) 38%),radial-gradient(circle at 50% 75%,#93e070,#3e9e24)}
 .light.g{cursor:default}
-.light{position:relative}
-.lights:hover .light.r::after,.lights:hover .light.y::after{position:absolute;left:0;right:0;top:-1px;text-align:center;font:bold 10px/13px Arial,sans-serif;color:rgba(70,0,0,.75)}
-.lights:hover .light.r::after{content:"×"}
-.lights:hover .light.y::after{content:"−";color:rgba(90,55,0,.75)}
-.win:not(.active) .titlebar .title{color:#888}
+.light{position:relative;cursor:default}
+.closebtn{position:absolute;right:6px;top:3px;width:22px;height:17px;border-radius:5px;border:1px solid #7d7d7d;padding:0;cursor:pointer;z-index:2;
+  font:bold 13px/14px Arial,sans-serif;color:#333;
+  background:linear-gradient(#ffffff 0%,#ececec 48%,#d2d2d2 52%,#f2f2f2 100%);box-shadow:inset 0 1px 0 #fff,0 1px 1px rgba(0,0,0,.18)}
+.closebtn:hover{color:#b3261e;border-color:#8a4a44}
+.closebtn:active{background:linear-gradient(#d2d2d2,#ececec)}
+
 
 /* ---------- main page (internet) ---------- */
 #win-main{width:700px}
@@ -193,11 +201,21 @@ button{font-family:inherit}
 .times{display:flex;justify-content:space-between;padding:0 6px;font-size:10px;font-weight:bold}
 #plTotal{width:48px;text-align:right;border:0;background:transparent;font:inherit;padding:0}
 #plTotal:focus{background:#fff;outline:1px solid #8fa4c4}
-.ctrls{display:flex;justify-content:center;gap:8px;margin-top:14px}
-.gel{width:46px;height:28px;border-radius:999px;border:1px solid #6e8db3;cursor:pointer;display:flex;align-items:center;justify-content:center;
-  background:linear-gradient(#ffffff 0%,#e3ecf6 48%,#c9d8ea 52%,#f2f7fc 100%);box-shadow:0 1px 2px rgba(0,0,0,.2),inset 0 1px 0 #fff}
-.gel.play{width:56px;border-color:#2a64ad;background:linear-gradient(#d9eeff 0%,#8fc5f7 48%,#4f9ced 52%,#a6dbff 100%)}
-.gel svg{width:16px;height:16px}
+.deck{margin-top:12px;border-radius:10px;padding:9px 9px 7px;
+  background:linear-gradient(180deg,#d7dce2 0%,#b9c0c9 45%,#a6aeb8 55%,#c8ced6 100%);
+  box-shadow:inset 0 1px 2px rgba(0,0,0,.35),inset 0 -1px 0 rgba(255,255,255,.7),0 1px 0 #fff}
+.ctrls{display:flex;justify-content:center;align-items:center;gap:7px}
+.gel{width:44px;height:30px;border-radius:7px;border:1px solid #15181c;cursor:pointer;display:flex;align-items:center;justify-content:center;
+  background:linear-gradient(#5d636c 0%,#3a3f46 48%,#24282d 52%,#30353b 100%);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.35),0 2px 2px rgba(0,0,0,.35)}
+.gel:active{background:linear-gradient(#24282d,#3a3f46);box-shadow:inset 0 2px 3px rgba(0,0,0,.6)}
+.gel.play{width:54px;height:36px;border-radius:9px}
+.gel svg{width:15px;height:15px}
+.deck-info{display:flex;justify-content:space-between;align-items:center;margin-top:7px;padding:0 2px;font:bold 8px/1 Arial,sans-serif;letter-spacing:.5px;color:#4a525c}
+.led{display:inline-block;width:6px;height:6px;border-radius:50%;margin-right:4px;vertical-align:-1px;background:#3d4a3a;border:1px solid #222}
+.led.on{background:radial-gradient(circle at 40% 35%,#eaffd6,#5ff03c 50%,#1f8f0c);box-shadow:0 0 4px #6dff4a}
+.vol{display:flex;gap:2px;align-items:flex-end}
+.vol i{display:block;width:3px;background:#4a525c;border-radius:1px}
 .edit-hint{font-size:10px;color:#6d7a8c;text-align:center;margin-top:10px}
 
 /* ---------- movies ---------- */
@@ -226,6 +244,7 @@ button{font-family:inherit}
 
 /* ---------- responsive ---------- */
 @media (max-width:760px){
+  #wallBtn,#wallReset{padding:2px 7px}
   #menubar .m.hide-s{display:none}
   .ms-grid{grid-template-columns:1fr;grid-template-rows:auto}
   .photo-box{grid-row:auto}
@@ -247,6 +266,7 @@ button{font-family:inherit}
 </head>
 <body>
 <div id="desktop">
+  <div id="wall"></div>
   <div class="swoosh sw1"></div><div class="swoosh sw2"></div><div class="swoosh sw3"></div>
 
   <!-- menubar -->
@@ -260,18 +280,28 @@ button{font-family:inherit}
     <span class="m hide-s">Window</span>
     <span class="m hide-s">Help</span>
     <div class="right">
+      <button class="plain-btn" id="wallReset" data-html2canvas-ignore>기본 배경</button>
+      <button class="plain-btn" id="wallBtn" data-html2canvas-ignore>배경 바꾸기</button>
       <button class="aqua-btn" id="saveBtn" data-html2canvas-ignore>PNG로 저장</button>
+      <input type="file" id="wallFile" accept="image/*" hidden>
       <span id="clock"></span>
     </div>
   </div>
 
   <!-- desktop icons -->
   <div class="dicon" id="icon-folder"><button class="dicon-btn" data-open="win-main" aria-label="폴더 열기">
-    <svg viewBox="0 0 64 64"><defs><linearGradient id="gFold" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#b9ddff"/><stop offset="1" stop-color="#3f8ae0"/></linearGradient></defs>
-      <path d="M6 14h19l5 6h28v34H6z" fill="#6caef1" stroke="#2a66b0" stroke-width="1.4"/>
-      <rect x="6" y="23" width="52" height="31" rx="2" fill="url(#gFold)" stroke="#2a66b0" stroke-width="1.4"/>
-      <path d="M8 26h48" stroke="#fff" stroke-opacity=".7" stroke-width="1.5"/>
-      <path d="M28 36h8M32 32v8" stroke="#fff" stroke-width="2.2" stroke-linecap="round" opacity=".85"/></svg></button>
+    <svg viewBox="0 0 64 64"><defs>
+      <linearGradient id="gFb" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#8fc3f5"/><stop offset="1" stop-color="#3d7fcf"/></linearGradient>
+      <linearGradient id="gFf" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#d9edff"/><stop offset=".5" stop-color="#9ccbf7"/><stop offset="1" stop-color="#5b9be2"/></linearGradient>
+      <pattern id="gFs" width="4" height="3" patternUnits="userSpaceOnUse"><rect width="4" height="1.3" fill="#ffffff" opacity=".35"/></pattern></defs>
+      <path d="M7 12q0-2 2-2h15q2 0 3 2l2 3h25q2 0 2 2v35H7z" fill="url(#gFb)" stroke="#2a5d9e" stroke-width="1.2"/>
+      <path d="M10 17h44v8H10z" fill="#fff" opacity=".85"/>
+      <path d="M12 19h30M12 22h24" stroke="#b5c4d6" stroke-width=".8"/>
+      <path d="M5 26q0-2 2-2h50q2 0 2 2l-3 27q0 2-2 2H10q-2 0-2-2z" fill="url(#gFf)" stroke="#2a5d9e" stroke-width="1.2"/>
+      <path d="M5 26q0-2 2-2h50q2 0 2 2l-3 27q0 2-2 2H10q-2 0-2-2z" fill="url(#gFs)"/>
+      <path d="M8 26.5h48" stroke="#fff" stroke-width="1.4" stroke-opacity=".9"/>
+      <path d="M9 52.5h45" stroke="#24508a" stroke-width="1" stroke-opacity=".5"/>
+      <ellipse cx="22" cy="31" rx="13" ry="3" fill="#fff" opacity=".35"/></svg></button>
     <span class="dlabel oneline" contenteditable="true" spellcheck="false">TITLE</span>
   </div>
   <div class="dicon" id="icon-memo"><button class="dicon-btn" data-open="win-memo" aria-label="메모장 열기">
@@ -284,7 +314,7 @@ button{font-family:inherit}
 
   <!-- ===== main window (internet) ===== -->
   <section class="win" id="win-main" aria-label="메인 페이지">
-    <div class="titlebar"><div class="lights"><button class="light r" data-close aria-label="닫기"></button><button class="light y" data-close aria-label="최소화"></button><span class="light g"></span></div><div class="title" id="mainWinTitle">TITLE</div></div>
+    <div class="titlebar"><div class="lights"><span class="light r"></span><span class="light y"></span><span class="light g"></span></div><div class="title" id="mainWinTitle">TITLE</div><button class="closebtn" data-close aria-label="닫기">×</button></div>
     <div class="toolbar" aria-hidden="true">
       <div class="tb"><svg viewBox="0 0 40 40"><defs><linearGradient id="tHw" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff6e3"/><stop offset="1" stop-color="#e2c79a"/></linearGradient><linearGradient id="tHr" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#d9673d"/><stop offset="1" stop-color="#8a2c14"/></linearGradient></defs>
         <rect x="27" y="7" width="4" height="9" fill="#8a4a2a" stroke="#4d2410" stroke-width=".8"/>
@@ -330,7 +360,7 @@ button{font-family:inherit}
         <div class="box login">
           <div class="boxhead dark">Member Login</div>
           <div class="boxbody">
-            <label><span>E-Mail:</span><input type="text" id="loginId" autocomplete="off" spellcheck="false"></label>
+            <label><span>ID:</span><input type="text" id="loginId" autocomplete="off" spellcheck="false"></label>
             <label><span>Password:</span><input type="password" id="loginPw" autocomplete="new-password"></label>
             <label class="chk"><input type="checkbox" checked> Remember Me</label>
             <div class="mbtns" aria-hidden="true"><span class="mbtn">LOGIN</span><span class="mbtn or">SIGN UP!</span></div>
@@ -357,8 +387,8 @@ button{font-family:inherit}
   </section>
 
   <!-- ===== memo ===== -->
-  <section class="win" id="win-memo" aria-label="메모장">
-    <div class="titlebar"><div class="lights"><button class="light r" data-close aria-label="닫기"></button><button class="light y" data-close aria-label="최소화"></button><span class="light g"></span></div><div class="title">메모장</div></div>
+  <section class="win" id="win-memo" aria-label="Notepad">
+    <div class="titlebar"><div class="lights"><span class="light r"></span><span class="light y"></span><span class="light g"></span></div><div class="title">Notepad</div><button class="closebtn" data-close aria-label="닫기">×</button></div>
     <div class="memo-tools">
       <button class="aqua-btn" id="memoPick">사진 넣기</button>
       <label>세밀함 <input type="range" id="memoCols" min="30" max="120" value="64"></label>
@@ -374,8 +404,8 @@ button{font-family:inherit}
   </section>
 
   <!-- ===== player ===== -->
-  <section class="win" id="win-player" aria-label="플레이어">
-    <div class="titlebar"><div class="lights"><button class="light r" data-close aria-label="닫기"></button><button class="light y" data-close aria-label="최소화"></button><span class="light g"></span></div><div class="title">플레이리스트</div></div>
+  <section class="win" id="win-player" aria-label="Playlist">
+    <div class="titlebar"><div class="lights"><span class="light r"></span><span class="light y"></span><span class="light g"></span></div><div class="title">Playlist</div><button class="closebtn" data-close aria-label="닫기">×</button></div>
     <div class="player-wrap">
       <div class="player">
         <div class="screen">
@@ -392,10 +422,13 @@ button{font-family:inherit}
           <div class="prog"><div id="plFill"></div></div>
           <div class="times"><span id="plElapsed">0:00</span><input id="plTotal" value="-2:33" aria-label="곡 길이"></div>
         </div>
+        <div class="deck">
         <div class="ctrls">
-          <button class="gel" id="plPrev" aria-label="처음으로"><svg viewBox="0 0 16 16"><path d="M3 3h2v10H3zM14 3v10L6 8z" fill="#2b3a4e"/></svg></button>
-          <button class="gel play" id="plPlay" aria-label="재생"><svg viewBox="0 0 16 16" id="plIcon"><path d="M4 2l10 6-10 6z" fill="#082a57"/></svg></button>
-          <button class="gel" id="plNext" aria-label="끝으로"><svg viewBox="0 0 16 16"><path d="M11 3h2v10h-2zM2 3v10l8-5z" fill="#2b3a4e"/></svg></button>
+          <button class="gel" id="plPrev" aria-label="Back to start"><svg viewBox="0 0 16 16"><path d="M3 3h2v10H3zM14 3v10L6 8z" fill="#dfe4ea"/></svg></button>
+          <button class="gel play" id="plPlay" aria-label="Play"><svg viewBox="0 0 16 16" id="plIcon"><path d="M4 2l10 6-10 6z" fill="#dfe4ea"/></svg></button>
+          <button class="gel" id="plNext" aria-label="Skip to end"><svg viewBox="0 0 16 16"><path d="M11 3h2v10h-2zM2 3v10l8-5z" fill="#dfe4ea"/></svg></button>
+        </div>
+        <div class="deck-info"><span><span class="led" id="plLed"></span>PLAY</span><span>MP3 &middot; 128K</span><span class="vol" aria-hidden="true"><i style="height:3px"></i><i style="height:5px"></i><i style="height:7px"></i><i style="height:9px"></i><i style="height:9px;opacity:.3"></i></span></div>
         </div>
         <div class="edit-hint" data-html2canvas-ignore>글자와 커버, 곡 길이를 눌러서 바꿔요</div>
       </div>
@@ -404,11 +437,11 @@ button{font-family:inherit}
   </section>
 
   <!-- ===== movies ===== -->
-  <section class="win" id="win-movie" aria-label="같이 본 영화">
-    <div class="titlebar"><div class="lights"><button class="light r" data-close aria-label="닫기"></button><button class="light y" data-close aria-label="최소화"></button><span class="light g"></span></div><div class="title">같이 본 영화</div></div>
+  <section class="win" id="win-movie" aria-label="Movies We Watched">
+    <div class="titlebar"><div class="lights"><span class="light r"></span><span class="light y"></span><span class="light g"></span></div><div class="title">Movies We Watched</div><button class="closebtn" data-close aria-label="닫기">×</button></div>
     <div class="movie-body">
       <table class="mtable">
-        <thead><tr><th>영화 제목 (년도)</th><th>별점</th></tr></thead>
+        <thead><tr><th>Movie</th><th>별점</th></tr></thead>
         <tbody id="mrows"></tbody>
       </table>
       <div class="mfoot"><span>별을 눌러서 평점을 매겨요</span><span>평균 <b id="mavg">-</b></span></div>
@@ -417,7 +450,7 @@ button{font-family:inherit}
 
   <div id="helpbar" data-html2canvas-ignore>
     <b>사용법</b>
-    아래 하단바나 왼쪽 아이콘을 누르면 창이 열려요. 창은 제목줄을 잡고 옮기고, 왼쪽 위 빨간 버튼(또는 Esc)으로 닫아요. TITLE을 비롯한 글자와 숫자는 눌러서 바로 고칠 수 있어요. 다 꾸몄으면 오른쪽 위 'PNG로 저장'을 눌러요. 이 안내와 회색 도움말 문구는 저장되는 이미지에 찍히지 않아요.
+    아래 하단바나 왼쪽 아이콘을 누르면 창이 열려요. 창은 제목줄을 잡고 옮기고, 오른쪽 위 × 버튼(또는 Esc)으로 닫아요. TITLE을 비롯한 글자와 숫자는 눌러서 바로 고칠 수 있어요. 흐리게 보이는 하단바 아이콘은 장식이에요. 배경 사진은 오른쪽 위 '배경 바꾸기'로 넣어요. 다 꾸몄으면 오른쪽 위 'PNG로 저장'을 눌러요. 이 안내와 회색 도움말 문구는 저장되는 이미지에 찍히지 않아요.
     <button id="helpClose" aria-label="안내 닫기">×</button>
   </div>
 
@@ -440,7 +473,7 @@ button{font-family:inherit}
         <path d="M34 31q3-2 6 0t6 0M34 35q3-2 6 0t6 0" fill="none" stroke="#5a5a5a" stroke-width=".9" opacity=".55"/>
         </g></svg>
     </button>
-    <button class="dock-item" data-open="win-main" aria-label="인터넷">
+    <button class="dock-item" data-open="win-main" aria-label="Internet">
       <svg viewBox="0 0 64 64"><defs>
         <radialGradient id="dGl" cx=".35" cy=".3" r=".8"><stop offset="0" stop-color="#d2ecff"/><stop offset=".5" stop-color="#3c8fe4"/><stop offset="1" stop-color="#0b3b8f"/></radialGradient>
         <linearGradient id="dBr" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#8a5d1c"/><stop offset=".5" stop-color="#f5d27a"/><stop offset="1" stop-color="#8a5d1c"/></linearGradient>
@@ -471,7 +504,7 @@ button{font-family:inherit}
         <ellipse cx="32" cy="16" rx="19.5" ry="5.5" fill="none" stroke="url(#dRim)" stroke-width="3.4"/>
         <ellipse cx="32" cy="16" rx="19.5" ry="5.5" fill="none" stroke="#4c5158" stroke-width=".6"/></svg>
     </button>
-    <button class="dock-item" data-open="win-movie" aria-label="같이 본 영화">
+    <button class="dock-item" data-open="win-movie" aria-label="Movies">
       <svg viewBox="0 0 64 64"><defs>
         <linearGradient id="dSl" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#3d3d44"/><stop offset="1" stop-color="#141417"/></linearGradient>
         <linearGradient id="dHg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f4f4f4"/><stop offset="1" stop-color="#7c828a"/></linearGradient>
@@ -487,7 +520,7 @@ button{font-family:inherit}
         <path d="M9 34h46" stroke="#fff" stroke-opacity=".12" stroke-width="2"/></svg>
       <span class="tri"></span>
     </button>
-    <button class="dock-item" data-open="win-player" aria-label="음악">
+    <button class="dock-item" data-open="win-player" aria-label="Music">
       <svg viewBox="0 0 64 64"><defs>
         <radialGradient id="dCd" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#fdfdfd"/><stop offset=".3" stop-color="#dfe5ee"/><stop offset=".7" stop-color="#c9d2de"/><stop offset="1" stop-color="#aeb8c6"/></radialGradient>
         <linearGradient id="dNote" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#7fc0ff"/><stop offset="1" stop-color="#0d46a8"/></linearGradient></defs>
@@ -576,7 +609,7 @@ $$('.win').forEach(w => {
   w.addEventListener('pointerdown', () => focusWin(w));
   const bar = w.querySelector('.titlebar');
   bar.addEventListener('pointerdown', e => {
-    if (e.target.closest('.lights')) return;
+    if (e.target.closest('.closebtn')) return;
     e.preventDefault();
     const r = w.getBoundingClientRect(), ox = e.clientX - r.left, oy = e.clientY - r.top;
     bar.setPointerCapture(e.pointerId);
@@ -652,6 +685,12 @@ document.addEventListener('keydown', e => {
   if (document.activeElement && document.activeElement.isContentEditable){ document.activeElement.blur(); return; }
   const w = $('.win.active.open'); if (w) closeWin(w);
 });
+$('#wallBtn').addEventListener('click', () => $('#wallFile').click());
+$('#wallFile').addEventListener('change', e => {
+  readImage(e.target.files[0], (img, url) => { $('#wall').style.backgroundImage = `url("${url}")`; $('#desktop').classList.add('custom'); });
+  e.target.value = '';
+});
+$('#wallReset').addEventListener('click', () => { $('#desktop').classList.remove('custom'); $('#wall').style.backgroundImage = ''; });
 $('#helpClose').addEventListener('click', () => $('#helpbar').remove());
 
 /* ---------- guestbook ---------- */
@@ -731,14 +770,15 @@ memoPaper.addEventListener('drop', e => { e.preventDefault(); loadMemo(e.dataTra
 const pl = { playing:false, t:0, total:153, timer:null };
 const fmt = s => { s = Math.max(0, Math.round(s)); return Math.floor(s/60) + ':' + String(s%60).padStart(2,'0'); };
 const plTotal = $('#plTotal');
-const ICON_PLAY = '<path d="M4 2l10 6-10 6z" fill="#082a57"/>';
-const ICON_PAUSE = '<path d="M3 2h4v12H3zM9 2h4v12H9z" fill="#082a57"/>';
+const ICON_PLAY = '<path d="M4 2l10 6-10 6z" fill="#dfe4ea"/>';
+const ICON_PAUSE = '<path d="M3 2h4v12H3zM9 2h4v12H9z" fill="#dfe4ea"/>';
 function renderPl(){
   $('#plElapsed').textContent = fmt(pl.t);
   if (document.activeElement !== plTotal) plTotal.value = '-' + fmt(pl.total - pl.t);
   $('#plFill').style.width = (pl.total ? pl.t / pl.total * 100 : 0) + '%';
   $('#plState').textContent = pl.playing ? '▶' : '❚❚';
   $('#plIcon').innerHTML = pl.playing ? ICON_PAUSE : ICON_PLAY;
+  $('#plLed').classList.toggle('on', pl.playing);
 }
 function pause(){ pl.playing = false; clearInterval(pl.timer); renderPl(); }
 function play(){
