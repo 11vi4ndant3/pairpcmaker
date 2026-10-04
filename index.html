@@ -202,7 +202,9 @@ button{font-family:inherit}
 .meta{display:flex;flex-direction:column;justify-content:center;gap:5px;min-width:0;font-size:11px;font-weight:bold}
 .meta div{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;outline:none;border-radius:2px}
 .meta div:focus{background:#fff;text-overflow:clip}
-.prog{margin:8px 6px 3px;height:8px;border:1px solid #9a96aa;background:linear-gradient(#fff,#e2e0ea);position:relative}
+.prog{margin:8px 6px 3px;height:8px;border:1px solid #9a96aa;background:linear-gradient(#fff,#e2e0ea);position:relative;cursor:pointer;touch-action:none}
+.prog::before{content:"";position:absolute;left:0;right:0;top:-6px;bottom:-6px}
+#plKnob{position:absolute;top:50%;width:6px;height:12px;margin:-6px 0 0 -3px;left:0;border-radius:2px;border:1px solid #2a3a55;background:linear-gradient(#ffffff,#b9c6d8);pointer-events:none}
 #plFill{position:absolute;left:0;top:0;bottom:0;width:0;background:linear-gradient(#bfe0ff,#4a95e6 50%,#2c78d4 51%,#8cc6ff)}
 .times{display:flex;justify-content:space-between;padding:0 6px;font-size:10px;font-weight:bold}
 #plTotal{width:48px;height:13px;line-height:13px;text-align:right;border:0;background:transparent;font:inherit;padding:0}
@@ -435,7 +437,7 @@ button{font-family:inherit}
               <div class="oneline" contenteditable="true" spellcheck="false">앨범 이름</div>
             </div>
           </div>
-          <div class="prog"><div id="plFill"></div></div>
+          <div class="prog" id="plProg"><div id="plFill"></div><div id="plKnob"></div></div>
           <div class="times"><span id="plElapsed">0:00</span><input id="plTotal" value="-2:33" aria-label="곡 길이"></div>
         </div>
         <div class="deck">
@@ -446,7 +448,7 @@ button{font-family:inherit}
         </div>
         <div class="deck-info"><span><span class="led" id="plLed"></span>PLAY</span><span>MP3 &middot; 128K</span><span class="vol" aria-hidden="true"><i style="height:3px"></i><i style="height:5px"></i><i style="height:7px"></i><i style="height:9px"></i><i style="height:9px;opacity:.3"></i></span></div>
         </div>
-        <div class="edit-hint" data-html2canvas-ignore>글자와 커버, 곡 길이를 눌러서 바꿔요</div>
+        <div class="edit-hint" data-html2canvas-ignore>글자와 커버, 곡 길이를 눌러서 바꾸고, 재생 바는 끌어서 옮겨요</div>
       </div>
     </div>
     <input type="file" id="coverFile" accept="image/*" hidden>
@@ -845,7 +847,8 @@ const ICON_PAUSE = '<path d="M3 2h4v12H3zM9 2h4v12H9z" fill="#dfe4ea"/>';
 function renderPl(){
   $('#plElapsed').textContent = fmt(pl.t);
   if (document.activeElement !== plTotal) plTotal.value = '-' + fmt(pl.total - pl.t);
-  $('#plFill').style.width = (pl.total ? pl.t / pl.total * 100 : 0) + '%';
+  const pct = (pl.total ? pl.t / pl.total * 100 : 0) + '%';
+  $('#plFill').style.width = pct; $('#plKnob').style.left = pct;
   $('#plState').textContent = pl.playing ? '▶' : '❚❚';
   $('#plIcon').innerHTML = pl.playing ? ICON_PAUSE : ICON_PLAY;
   $('#plLed').classList.toggle('on', pl.playing);
@@ -857,6 +860,18 @@ function play(){
   pl.timer = setInterval(() => { pl.t++; if (pl.t >= pl.total){ pl.t = pl.total; pause(); } renderPl(); }, 1000);
   renderPl();
 }
+const plProg = $('#plProg');
+function seek(clientX){
+  const r = plProg.getBoundingClientRect();
+  pl.t = Math.round(Math.max(0, Math.min(1, (clientX - r.left) / r.width)) * pl.total);
+  renderPl();
+}
+plProg.addEventListener('pointerdown', e => {
+  e.preventDefault(); plProg.setPointerCapture(e.pointerId); seek(e.clientX);
+  const move = ev => seek(ev.clientX);
+  const up = () => { plProg.removeEventListener('pointermove', move); plProg.removeEventListener('pointerup', up); plProg.removeEventListener('pointercancel', up); };
+  plProg.addEventListener('pointermove', move); plProg.addEventListener('pointerup', up); plProg.addEventListener('pointercancel', up);
+});
 $('#plPlay').addEventListener('click', () => pl.playing ? pause() : play());
 $('#plPrev').addEventListener('click', () => { pl.t = 0; renderPl(); });
 $('#plNext').addEventListener('click', () => { pl.t = pl.total; pause(); });
@@ -916,9 +931,15 @@ $('#saveBtn').addEventListener('click', async () => {
   btn.disabled = true; btn.textContent = '저장 중…';
   try{
     const canvas = await html2canvas($('#desktop'), {
-      onclone: doc => { doc.getElementById('desktop').classList.add('shot'); },
+      onclone: doc => {
+        doc.getElementById('desktop').classList.add('shot');
+        /* inputs that render badly in the capture become plain text */
+        const t = doc.getElementById('plTotal');
+        if (t){ const sp = doc.createElement('span'); sp.textContent = t.value; sp.style.cssText = 'font:inherit'; t.replaceWith(sp); }
+      },
       scale: Math.min(2, window.devicePixelRatio || 1), backgroundColor: '#2f6fcf', logging: false,
-      width: innerWidth, height: innerHeight, windowWidth: innerWidth, windowHeight: innerHeight, scrollX: 0, scrollY: 0
+      x: 0, y: 0, width: innerWidth, height: innerHeight,
+      windowWidth: innerWidth, windowHeight: innerHeight, scrollX: 0, scrollY: 0
     });
     canvas.toBlob(blob => {
       const a = document.createElement('a');
