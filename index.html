@@ -17,7 +17,6 @@
   --ms-blue:#003399;
   --ms-mid:#6699cc;
   --ms-orange:#ff9933;
-  --stripe:repeating-linear-gradient(0deg,#f3f3f3 0 2px,#e9e9e9 2px 4px);
 }
 *{box-sizing:border-box}
 html,body{margin:0;height:100%;overflow:hidden;font-family:var(--font);color:var(--ink);-webkit-font-smoothing:antialiased}
@@ -82,7 +81,7 @@ button{font-family:inherit}
 .dock-sep{width:1px;align-self:stretch;margin:4px 4px;background:linear-gradient(transparent,rgba(0,0,0,.35),transparent)}
 
 /* ---------- windows ---------- */
-.win{position:absolute;display:none;flex-direction:column;border-radius:9px 9px 6px 6px;background:var(--stripe);
+.win{position:absolute;display:none;flex-direction:column;border-radius:9px 9px 6px 6px;background-color:#ececec;background-image:var(--stripe-img,none);
   box-shadow:0 14px 34px rgba(0,22,70,.48),0 0 0 1px rgba(0,0,0,.28);max-width:calc(100vw - 16px);overflow:hidden}
 .win.open{display:flex;animation:pop .18s ease-out}
 @keyframes pop{from{transform:scale(.94);opacity:.4}to{transform:scale(1);opacity:1}}
@@ -110,7 +109,7 @@ button{font-family:inherit}
 .toolbar{display:flex;justify-content:center;align-items:flex-end;gap:4px;padding:7px 10px 5px;border-bottom:1px solid #8f8f8f;box-shadow:0 1px 0 #fff;user-select:none;pointer-events:none;flex:none}
 .tb{width:72px;display:flex;flex-direction:column;align-items:center;gap:3px;font-size:11px;color:#111}
 .tb svg{width:34px;height:34px;filter:drop-shadow(0 1px 1px rgba(0,0,0,.3))}
-.tb-sep{width:1px;height:42px;align-self:center;background:repeating-linear-gradient(#777 0 1px,transparent 1px 3px);margin:0 6px}
+.tb-sep{width:0;height:42px;align-self:center;border-left:1px dotted #777;margin:0 6px}
 .main-scroll{overflow:auto;max-height:calc(100vh - 210px);background:#fff;flex:1}
 .ms-head{background:var(--ms-blue);color:#fff;padding:8px 14px;display:flex;align-items:baseline;gap:10px}
 .ms-head b{font-size:22px;letter-spacing:-.5px;font-family:Verdana,var(--font);outline:none;min-width:30px}
@@ -206,7 +205,7 @@ button{font-family:inherit}
 .prog{margin:8px 6px 3px;height:8px;border:1px solid #9a96aa;background:linear-gradient(#fff,#e2e0ea);position:relative}
 #plFill{position:absolute;left:0;top:0;bottom:0;width:0;background:linear-gradient(#bfe0ff,#4a95e6 50%,#2c78d4 51%,#8cc6ff)}
 .times{display:flex;justify-content:space-between;padding:0 6px;font-size:10px;font-weight:bold}
-#plTotal{width:48px;text-align:right;border:0;background:transparent;font:inherit;padding:0}
+#plTotal{width:48px;height:13px;line-height:13px;text-align:right;border:0;background:transparent;font:inherit;padding:0}
 #plTotal:focus{background:#fff;outline:1px solid #8fa4c4}
 .deck{margin-top:12px;border-radius:10px;padding:9px 9px 7px;
   background:linear-gradient(180deg,#d7dce2 0%,#b9c0c9 45%,#a6aeb8 55%,#c8ced6 100%);
@@ -242,6 +241,15 @@ button{font-family:inherit}
 .star.on{color:#f2b100;text-shadow:0 1px 0 #b07e00}
 .star.hov{color:#ffd45a}
 .mfoot{display:flex;justify-content:space-between;align-items:center;font-size:11px;color:#555;margin-top:8px}
+
+/* ---------- PNG capture mode (applied only to the saved copy) ---------- */
+.shot .win{box-shadow:none;border:1px solid #6f7782}
+.shot .player{box-shadow:none;border:1px solid #b8c4d2}
+.shot .deck{box-shadow:none;border:1px solid #9aa2ac}
+.shot .gel,.shot .aqua-btn,.shot .plain-btn,.shot .closebtn{box-shadow:none}
+.shot #dock{box-shadow:none}
+.shot .main-scroll,.shot .memo-paper{overflow:hidden}
+.shot input[type=range]{visibility:hidden}
 
 /* ---------- help ---------- */
 #helpbar{position:absolute;left:12px;bottom:92px;max-width:300px;z-index:4;font-size:11px;line-height:1.55;color:#0d2a55;
@@ -578,6 +586,14 @@ function tick(){
 tick(); setInterval(tick, 15000);
 
 /* ---------- windows ---------- */
+/* window pinstripes as a tiny image (gradients don't survive PNG export) */
+(() => {
+  const c = document.createElement('canvas'); c.width = 4; c.height = 4;
+  const x = c.getContext('2d');
+  x.fillStyle = '#e9e9e9'; x.fillRect(0, 0, 4, 4);
+  x.fillStyle = '#f3f3f3'; x.fillRect(0, 0, 4, 2);
+  document.documentElement.style.setProperty('--stripe-img', `url(${c.toDataURL()})`);
+})();
 const desktopEl = $('#desktop');
 desktopEl.addEventListener('scroll', () => { desktopEl.scrollTop = 0; desktopEl.scrollLeft = 0; });
 let zTop = 20;
@@ -900,6 +916,7 @@ $('#saveBtn').addEventListener('click', async () => {
   btn.disabled = true; btn.textContent = '저장 중…';
   try{
     const canvas = await html2canvas($('#desktop'), {
+      onclone: doc => { doc.getElementById('desktop').classList.add('shot'); },
       scale: Math.min(2, window.devicePixelRatio || 1), backgroundColor: '#2f6fcf', logging: false,
       width: innerWidth, height: innerHeight, windowWidth: innerWidth, windowHeight: innerHeight, scrollX: 0, scrollY: 0
     });
