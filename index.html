@@ -158,8 +158,12 @@ button{font-family:inherit}
 .gb-item{display:grid;grid-template-columns:96px 1fr;background:#ffcc99;border:1px solid #f0b27a}
 .gb-left{display:flex;flex-direction:column;align-items:center;gap:4px;padding:6px 4px;text-align:center}
 .gb-name{font-size:11px;color:var(--ms-blue);text-decoration:underline;font-weight:bold;outline:none;min-width:30px;word-break:break-all}
-.gb-pic{width:70px;height:70px;border:1px solid #c98a4b;background:#fff8ef center/cover no-repeat;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:9px;color:#b07a44}
+.gb-pic{position:relative;overflow:hidden;width:70px;height:70px;border:1px solid #c98a4b;background:#fff8ef;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:9px;color:#b07a44;touch-action:none}
+.gb-pic img{position:absolute;max-width:none;pointer-events:none;user-select:none;-webkit-user-drag:none;display:none}
+.gb-pic.has img{display:block}
 .gb-pic.has span{display:none}
+.gb-pic.has{cursor:grab}
+.gb-pic.dragging{cursor:grabbing}
 .gb-right{background:#fffaf3;padding:6px 8px;position:relative;min-width:0}
 .gb-date{font-size:10px;font-weight:bold;color:#444;outline:none;margin-bottom:4px;padding-right:18px}
 .gb-msg{font-size:12px;line-height:1.55;outline:none;white-space:pre-wrap;word-break:break-word;min-height:40px}
@@ -175,6 +179,9 @@ button{font-family:inherit}
 #memoText{margin:0;font-family:var(--mono);font-size:13px;line-height:1.35;color:#000;white-space:pre;outline:none;min-height:100%}
 #memoText.ascii{line-height:1.1}
 .memo-paper.drop{background:#eef6ff}
+#win-memo{position:absolute}
+.grip{position:absolute;right:0;bottom:0;width:16px;height:16px;cursor:nwse-resize;touch-action:none;z-index:3;
+  background:linear-gradient(135deg,transparent 0 45%,#8c8c8c 45% 52%,transparent 52% 62%,#8c8c8c 62% 69%,transparent 69% 79%,#8c8c8c 79% 86%,transparent 86%)}
 
 /* ---------- player ---------- */
 #win-player{width:246px}
@@ -377,7 +384,7 @@ button{font-family:inherit}
         </div>
 
         <div class="box text-box">
-          <div class="boxhead or"><span class="gb-title oneline" contenteditable="true" spellcheck="false">TITLE</span></div>
+          <div class="boxhead or"><span class="gb-title oneline" contenteditable="true" spellcheck="false">Guestbook</span></div>
           <div class="gb-count"><span>Displaying <b id="gbN">2</b> of <b id="gbT">2</b> comments</span><button class="plain-btn" id="gbAdd" data-html2canvas-ignore>+ Add Comment</button></div>
           <div class="gb-list" id="gbList"></div>
           <input type="file" id="gbFile" accept="image/*" hidden>
@@ -400,6 +407,7 @@ button{font-family:inherit}
 이 종이 위로 사진을 끌어다 놓아 주세요.
 
 글도 자유롭게 쓸 수 있어요.</pre></div>
+    <div class="grip" id="memoGrip" title="끌어서 크기 조절"></div>
     <input type="file" id="memoFile" accept="image/*" hidden>
   </section>
 
@@ -444,13 +452,13 @@ button{font-family:inherit}
         <thead><tr><th>Movie</th><th>별점</th></tr></thead>
         <tbody id="mrows"></tbody>
       </table>
-      <div class="mfoot"><span>별을 눌러서 평점을 매겨요</span><span>평균 <b id="mavg">-</b></span></div>
+      <div class="mfoot"><span>별을 눌러서 평점을 매겨요</span><button class="plain-btn" id="mAdd" data-html2canvas-ignore>+ 영화 추가</button><span>평균 <b id="mavg">-</b></span></div>
     </div>
   </section>
 
   <div id="helpbar" data-html2canvas-ignore>
     <b>사용법</b>
-    아래 하단바나 왼쪽 아이콘을 누르면 창이 열려요. 창은 제목줄을 잡고 옮기고, 오른쪽 위 × 버튼(또는 Esc)으로 닫아요. TITLE을 비롯한 글자와 숫자는 눌러서 바로 고칠 수 있어요. 흐리게 보이는 하단바 아이콘은 장식이에요. 배경 사진은 오른쪽 위 '배경 바꾸기'로 넣어요. 다 꾸몄으면 오른쪽 위 'PNG로 저장'을 눌러요. 이 안내와 회색 도움말 문구는 저장되는 이미지에 찍히지 않아요.
+    아래 하단바나 왼쪽 아이콘을 누르면 창이 열려요. 창은 제목줄을 잡고 옮기고, 오른쪽 위 × 버튼(또는 Esc)으로 닫아요. TITLE을 비롯한 글자와 숫자는 눌러서 바로 고칠 수 있어요. 흐리게 보이는 하단바 아이콘은 장식이에요. 배경 사진은 오른쪽 위 '배경 바꾸기'로 넣어요. 메모장은 오른쪽 아래 모서리를 끌어 크기를 바꾸고, 방명록 사진은 더블클릭하면 다른 사진으로 바꿀 수 있어요. 다 꾸몄으면 오른쪽 위 'PNG로 저장'을 눌러요. 이 안내와 회색 도움말 문구는 저장되는 이미지에 찍히지 않아요.
     <button id="helpClose" aria-label="안내 닫기">×</button>
   </div>
 
@@ -570,6 +578,8 @@ function tick(){
 tick(); setInterval(tick, 15000);
 
 /* ---------- windows ---------- */
+const desktopEl = $('#desktop');
+desktopEl.addEventListener('scroll', () => { desktopEl.scrollTop = 0; desktopEl.scrollLeft = 0; });
 let zTop = 20;
 function focusWin(w){
   w.style.zIndex = ++zTop;
@@ -693,6 +703,34 @@ $('#wallFile').addEventListener('change', e => {
 $('#wallReset').addEventListener('click', () => { $('#desktop').classList.remove('custom'); $('#wall').style.backgroundImage = ''; });
 $('#helpClose').addEventListener('click', () => $('#helpbar').remove());
 
+/* ---------- reusable wheel-zoom + drag box ---------- */
+function panZoom(box, img, onEmpty){
+  const st = { s:1, x:0, y:0, w:0, h:0 };
+  const apply = () => { img.style.width = st.w*st.s + 'px'; img.style.height = st.h*st.s + 'px'; img.style.left = st.x + 'px'; img.style.top = st.y + 'px'; };
+  box._load = (url, nw, nh) => {
+    img.src = url;
+    const bw = box.clientWidth, bh = box.clientHeight, k = Math.max(bw/nw, bh/nh);
+    st.s = 1; st.w = nw*k; st.h = nh*k; st.x = (bw - st.w)/2; st.y = (bh - st.h)/2;
+    apply(); box.classList.add('has');
+  };
+  box.addEventListener('wheel', e => {
+    if (!box.classList.contains('has')) return;
+    e.preventDefault();
+    const r = box.getBoundingClientRect(), mx = e.clientX - r.left, my = e.clientY - r.top;
+    const ns = Math.min(8, Math.max(0.2, st.s * (e.deltaY < 0 ? 1.1 : 1/1.1))), f = ns / st.s;
+    st.x = mx - (mx - st.x)*f; st.y = my - (my - st.y)*f; st.s = ns; apply();
+  }, { passive:false });
+  box.addEventListener('pointerdown', e => {
+    if (!box.classList.contains('has')){ onEmpty(); return; }
+    e.preventDefault();
+    const sx = e.clientX, sy = e.clientY, bx = st.x, by = st.y;
+    box.setPointerCapture(e.pointerId); box.classList.add('dragging');
+    const move = ev => { st.x = bx + ev.clientX - sx; st.y = by + ev.clientY - sy; apply(); };
+    const up = () => { box.classList.remove('dragging'); box.removeEventListener('pointermove', move); box.removeEventListener('pointerup', up); box.removeEventListener('pointercancel', up); };
+    box.addEventListener('pointermove', move); box.addEventListener('pointerup', up); box.addEventListener('pointercancel', up);
+  });
+}
+
 /* ---------- guestbook ---------- */
 const gbList = $('#gbList'), gbFile = $('#gbFile');
 let gbTarget = null;
@@ -702,18 +740,20 @@ function nowStr(){
 function gbCount(){ const n = gbList.children.length; $('#gbN').textContent = n; $('#gbT').textContent = n; }
 function addComment(name, msg){
   const it = document.createElement('div'); it.className = 'gb-item';
-  it.innerHTML = `<div class="gb-left"><div class="gb-name oneline" contenteditable="true" spellcheck="false"></div><div class="gb-pic" title="사진 넣기"><span>+ photo</span></div></div>
+  it.innerHTML = `<div class="gb-left"><div class="gb-name oneline" contenteditable="true" spellcheck="false"></div><div class="gb-pic" title="사진 넣기 (더블클릭하면 바꾸기)"><img alt=""><span>+ photo</span></div></div>
     <div class="gb-right"><div class="gb-date oneline" contenteditable="true" spellcheck="false"></div><div class="gb-msg" contenteditable="true" spellcheck="false"></div><button class="gb-del" data-html2canvas-ignore aria-label="댓글 지우기">×</button></div>`;
   it.querySelector('.gb-name').textContent = name;
   it.querySelector('.gb-date').textContent = nowStr();
   it.querySelector('.gb-msg').textContent = msg;
   it.querySelectorAll('.oneline').forEach(el => el.addEventListener('keydown', e => { if (e.key === 'Enter'){ e.preventDefault(); el.blur(); } }));
-  it.querySelector('.gb-pic').addEventListener('click', e => { gbTarget = e.currentTarget; gbFile.click(); });
+  const pic = it.querySelector('.gb-pic');
+  panZoom(pic, pic.querySelector('img'), () => { gbTarget = pic; gbFile.click(); });
+  pic.addEventListener('dblclick', () => { gbTarget = pic; gbFile.click(); });
   it.querySelector('.gb-del').addEventListener('click', () => { it.remove(); gbCount(); });
   gbList.appendChild(it); gbCount();
 }
 gbFile.addEventListener('change', e => {
-  readImage(e.target.files[0], (img, url) => { if (gbTarget){ gbTarget.style.backgroundImage = `url("${url}")`; gbTarget.classList.add('has'); } });
+  readImage(e.target.files[0], (img, url) => { if (gbTarget) gbTarget._load(url, img.naturalWidth, img.naturalHeight); });
   e.target.value = '';
 });
 $('#gbAdd').addEventListener('click', () => addComment('Name', 'Write a comment here.'));
@@ -759,6 +799,20 @@ function loadMemo(file){ readImage(file, img => { memoImg = img; renderAscii(); 
 $('#memoPick').addEventListener('click', () => $('#memoFile').click());
 $('#memoFile').addEventListener('change', e => { loadMemo(e.target.files[0]); e.target.value = ''; });
 memoCols.addEventListener('input', renderAscii);
+const memoGrip = $('#memoGrip'), memoWin = $('#win-memo');
+memoGrip.addEventListener('pointerdown', e => {
+  e.preventDefault(); e.stopPropagation();
+  const sx = e.clientX, sy = e.clientY, sw = memoWin.offsetWidth, sh = memoPaper.offsetHeight;
+  memoGrip.setPointerCapture(e.pointerId);
+  const move = ev => {
+    const left = memoWin.getBoundingClientRect().left;
+    memoWin.style.width = Math.max(280, Math.min(innerWidth - left - 8, sw + ev.clientX - sx)) + 'px';
+    const top = memoWin.getBoundingClientRect().top, chrome = memoWin.offsetHeight - memoPaper.offsetHeight;
+    memoPaper.style.height = Math.max(160, Math.min(innerHeight - top - chrome - 8, sh + ev.clientY - sy)) + 'px';
+  };
+  const up = () => { memoGrip.removeEventListener('pointermove', move); memoGrip.removeEventListener('pointerup', up); memoGrip.removeEventListener('pointercancel', up); renderAscii(); };
+  memoGrip.addEventListener('pointermove', move); memoGrip.addEventListener('pointerup', up); memoGrip.addEventListener('pointercancel', up);
+});
 $('#memoClear').addEventListener('click', () => {
   memoImg = null; memoText.classList.remove('ascii'); memoText.style.fontSize = ''; memoText.textContent = memoDefault;
 });
@@ -806,8 +860,11 @@ $('#coverFile').addEventListener('change', e => {
 renderPl();
 
 /* ---------- movies ---------- */
-const mrows = $('#mrows'), ratings = [0,0,0,0,0];
-for (let i = 0; i < 5; i++){
+const mrows = $('#mrows'), ratings = [], MAX_MOVIES = 5;
+function addMovie(){
+  const i = ratings.length;
+  if (i >= MAX_MOVIES) return;
+  ratings.push(0);
   const tr = document.createElement('tr');
   tr.innerHTML = `<td><div class="mcell"><input class="mtitle" placeholder="영화 제목" aria-label="영화 제목 ${i+1}"><span>(</span><input class="myear" placeholder="년도" maxlength="4" inputmode="numeric" aria-label="개봉 년도 ${i+1}"><span>)</span></div></td>
     <td><div class="stars">${[1,2,3,4,5].map(n => `<button class="star" data-n="${n}" aria-label="${n}점">★</button>`).join('')}</div></td>`;
@@ -820,7 +877,10 @@ for (let i = 0; i < 5; i++){
   });
   tr.querySelector('.stars').addEventListener('mouseleave', () => stars.forEach(o => o.classList.remove('hov')));
   tr.querySelector('.myear').addEventListener('input', e => { e.target.value = e.target.value.replace(/\D/g, ''); });
+  $('#mAdd').style.display = ratings.length >= MAX_MOVIES ? 'none' : '';
 }
+$('#mAdd').addEventListener('click', addMovie);
+addMovie(); addMovie();
 function avg(){
   const r = ratings.filter(Boolean);
   $('#mavg').textContent = r.length ? '★ ' + (r.reduce((a,b) => a+b, 0) / r.length).toFixed(1) : '-';
