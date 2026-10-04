@@ -953,17 +953,26 @@ $('#saveBtn').addEventListener('click', async () => {
       width: fit.w, height: H,
       pixelRatio: Math.min(4, Math.max(3, window.devicePixelRatio || 1)),
       backgroundColor: '#2f6fcf',
+      skipFonts: true, fontEmbedCSS: '',   /* system fonts only: skip web-font embedding (a common failure point) */
       style: { position:'relative', top:'0', left:'0', right:'auto', bottom:'auto', width: fit.w + 'px', height: H + 'px' },
       filter: node => !(node.nodeType === 1 && node.hasAttribute && node.hasAttribute('data-noshot'))
     };
     if (isSafari){ try { await htmlToImage.toCanvas(dk, opts); } catch(e){} }  /* Safari needs a warm-up pass for images */
-    const blob = await htmlToImage.toBlob(dk, opts);
+    /* try high quality first, then step down if the browser can't handle it */
+    let blob = null, lastErr = null;
+    for (const pr of [opts.pixelRatio, 2, 1]){
+      try { blob = await htmlToImage.toBlob(dk, { ...opts, pixelRatio: pr }); } catch(e){ lastErr = e; blob = null; }
+      if (blob) break;
+    }
+    if (!blob) throw lastErr || new Error('빈 이미지');
     const a = document.createElement('a');
     a.href = URL.createObjectURL(blob); a.download = randomName();
     document.body.appendChild(a); a.click(); a.remove();
     setTimeout(() => URL.revokeObjectURL(a.href), 3000);
   } catch(err){
-    alert('이미지를 저장하지 못했어요. 다시 눌러 주세요.');
+    const why = err && (err.message || (err.type ? 'event: ' + err.type : String(err)));
+    alert('이미지를 저장하지 못했어요. 다시 눌러 주세요.\n(오류 내용: ' + (why || '알 수 없음') + ')');
+    console.error(err);
   } finally {
     moved.forEach(([w, l]) => { w.style.left = l; });
     dk.style.right = ''; dk.style.width = '';
