@@ -131,8 +131,6 @@ button{font-family:inherit}
 #photo.has{cursor:grab}
 #photo.has .empty{display:none}
 #photo.dragging{cursor:grabbing}
-.photo-tools{display:flex;justify-content:space-between;align-items:center;padding:4px 6px;font-size:10px;color:#666;border-top:1px solid #dce5f0}
-.photo-tools button{font-size:10px;padding:1px 8px}
 
 .login label{display:flex;align-items:center;gap:6px;margin-bottom:6px;font-size:11px}
 .login label span{width:52px;flex:none;text-align:right}
@@ -366,11 +364,10 @@ button{font-family:inherit}
           <div id="photo" tabindex="0" aria-label="사진 넣기">
             <div class="empty">
               <svg viewBox="0 0 32 32"><rect x="3" y="7" width="26" height="19" rx="2" fill="none" stroke="#4d6c94" stroke-width="1.6"/><circle cx="11" cy="14" r="2.5" fill="#4d6c94"/><path d="M4 24l8-7 5 5 4-3 7 6" fill="none" stroke="#4d6c94" stroke-width="1.6"/></svg>
-              Click to add photo<br><small>휠로 크기, 드래그로 위치 조절</small>
+              Click to add photo<br><small>휠로 크기, 드래그로 위치 조절<br>더블클릭하면 사진 바꾸기</small>
             </div>
             <img id="photoImg" alt="">
           </div>
-          <div class="photo-tools" data-html2canvas-ignore><span>휠: 크기 · 드래그: 위치</span><button class="plain-btn" id="photoChange">사진 바꾸기</button></div>
           <input type="file" id="photoFile" accept="image/*" hidden>
         </div>
 
@@ -468,7 +465,7 @@ button{font-family:inherit}
 
   <div id="helpbar" data-html2canvas-ignore>
     <b>사용법</b>
-    아래 하단바나 왼쪽 아이콘을 누르면 창이 열려요. 창은 제목줄을 잡고 옮기고, 오른쪽 위 × 버튼(또는 Esc)으로 닫아요. TITLE을 비롯한 글자와 숫자는 눌러서 바로 고칠 수 있어요. 흐리게 보이는 하단바 아이콘은 장식이에요. 배경 사진은 오른쪽 위 '배경 바꾸기'로 넣어요. 메모장은 오른쪽 아래 모서리를 끌어 크기를 바꾸고, 방명록 사진은 더블클릭하면 다른 사진으로 바꿀 수 있어요. 다 꾸몄으면 오른쪽 위 'PNG로 저장'을 눌러요. 이 안내와 회색 도움말 문구는 저장되는 이미지에 찍히지 않아요.
+    아래 하단바나 왼쪽 아이콘을 누르면 창이 열려요. 창은 제목줄을 잡고 옮기고, 오른쪽 위 × 버튼(또는 Esc)으로 닫아요. TITLE을 비롯한 글자와 숫자는 눌러서 바로 고칠 수 있어요. 흐리게 보이는 하단바 아이콘은 장식이에요. 배경 사진은 오른쪽 위 '배경 바꾸기'로 넣어요. 메모장은 오른쪽 아래 모서리를 끌어 크기를 바꾸고, 메인 사진과 방명록 사진은 더블클릭하면 다른 사진으로 바꿀 수 있어요. 다 꾸몄으면 오른쪽 위 'PNG로 저장'을 눌러요. 이 안내와 회색 도움말 문구는 저장되는 이미지에 찍히지 않아요.
     <button id="helpClose" aria-label="안내 닫기">×</button>
   </div>
 
@@ -688,7 +685,7 @@ pfile.addEventListener('change', e => {
   });
   e.target.value = '';
 });
-$('#photoChange').addEventListener('click', () => pfile.click());
+photo.addEventListener('dblclick', () => pfile.click());
 photo.addEventListener('keydown', e => { if (e.key === 'Enter' && !photo.classList.contains('has')) pfile.click(); });
 photo.addEventListener('wheel', e => {
   if (!photo.classList.contains('has')) return;
